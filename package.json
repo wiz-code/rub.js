@@ -1,0 +1,54 @@
+{
+  "name": "rub",
+  "version": "0.1.0",
+  "author": "Masa",
+  "main": "lib/rub.js",
+  "license": "MIT",
+  "engines": {
+    "yarn": "1.x",
+    "node": "12.x",
+    "npm": "6.x"
+  },
+  "scripts": {
+    "lint": "eslint 'src/**' --ext .js,.ts --fix",
+    "build": "webpack --display-error-details",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.9.0",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/plugin-proposal-object-rest-spread": "^7.9.5",
+    "@babel/preset-env": "^7.9.5",
+    "@babel/preset-typescript": "^7.9.0",
+    "@typescript-eslint/eslint-plugin": "^2.27.0",
+    "@typescript-eslint/parser": "^2.27.0",
+    "@typescript-eslint/typescript-estree": "^2.27.0",
+    "babel-jest": "^25.3.0",
+    "babel-loader": "^8.1.0",
+    "clean-webpack-plugin": "^3.0.0",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-config-prettier": "^6.0.0",
+    "eslint-loader": "^4.0.0",
+    "eslint-plugin-import": "^2.18.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "jest": "^25.3.0",
+    "prettier": "^2.0.4",
+    "terser-webpack-plugin": "^3.0.1",
+    "ts-loader": "^6.0.4",
+    "ts-node": "^8.9.1",
+    "typescript": "^3.8.3",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11"
+  },
+  "dependencies": {
+    "@types/javascript-state-machine": "^2.4.1",
+    "core-js": "^3.6.5",
+    "elliptic": "6.5.3",
+    "javascript-state-machine": "2.4.0",
+    "lodash": "4.17.20",
+    "regenerator-runtime": "^0.13.5",
+    "serialize-javascript": "4.0.0"
+  }
+}
