@@ -1,123 +1,19 @@
-import PointerHandler from './pointer-handler.ts';
-import { TargetInterface, PointerStateMachine } from './interface.ts';
-import EventType from './event-type.ts';
+import PointerHandler from './pointer-handler';
+import EventType from './event-type';
+import * as IRub from './interface';
 
 const { documentElement } = document;
-
-function start(
-  this: MouseHandler,
-  state: PointerStateMachine,
-  event: MouseEvent | TouchEvent
-): void {
-  if (!(event instanceof MouseEvent)) {
-    return;
-  }
-
-  if (state.current !== 'idling') {
-    return;
-  }
-
-  state.start();
-
-  const t = performance.now();
-
-  const rect: DOMRect = documentElement.getBoundingClientRect();
-  const x = event.clientX - rect.left;
-  const y = event.clientY - rect.top;
-
-  this.coords.addTrack([t, x, y]);
-}
-
-function move(
-  this: MouseHandler,
-  state: PointerStateMachine,
-  event: MouseEvent | TouchEvent
-): void {
-  if (!(event instanceof MouseEvent)) {
-    return;
-  }
-
-  if (state.current !== 'running') {
-    return;
-  }
-
-  const t = performance.now();
-
-  const rect: DOMRect = documentElement.getBoundingClientRect();
-  const x = event.clientX - rect.left;
-  const y = event.clientY - rect.top;
-
-  this.coords.addTrack([t, x, y]);
-}
-
-function end(
-  this: MouseHandler,
-  state: PointerStateMachine,
-  event: MouseEvent | TouchEvent
-): void {
-  if (!(event instanceof MouseEvent)) {
-    return;
-  }
-
-  if (state.current !== 'running') {
-    return;
-  }
-
-  const t = performance.now();
-
-  const rect: DOMRect = documentElement.getBoundingClientRect();
-  const x = event.clientX - rect.left;
-  const y = event.clientY - rect.top;
-
-  this.coords.addTrack([t, x, y]);
-
-  state.end();
-}
-
-function activate(this: MouseHandler, event: MouseEvent | TouchEvent): void {
-  const index = this.findTargetIndex(
-    (t: TargetInterface): boolean => t.el === (event.target as HTMLDivElement)
-  );
-  const target = this.targets[index];
-
-  if (target == null) {
-    return;
-  }
-
-  if (target.state.current !== 'inactive') {
-    return;
-  }
-
-  target.state.activate();
-}
-
-function inactivate(this: MouseHandler, event: MouseEvent | TouchEvent): void {
-  const index = this.findTargetIndex(
-    (t: TargetInterface): boolean => t.el === (event.target as HTMLDivElement)
-  );
-  const target = this.targets[index];
-
-  if (target == null) {
-    return;
-  }
-
-  if (target.state.current !== 'active') {
-    return;
-  }
-
-  target.state.inactivate();
-}
 
 export default class MouseHandler extends PointerHandler {
   public constructor(els: HTMLDivElement[]) {
     super(els);
 
     this.listener = {
-      start: start.bind(this, this.state),
-      end: end.bind(this, this.state),
-      move: move.bind(this, this.state),
-      activate: activate.bind(this),
-      inactivate: inactivate.bind(this),
+      start: MouseHandler.start.bind(this, this.state),
+      end: MouseHandler.end.bind(this, this.state),
+      move: MouseHandler.move.bind(this, this.state),
+      activate: MouseHandler.activate.bind(this),
+      inactivate: MouseHandler.inactivate.bind(this),
     };
   }
 
@@ -173,5 +69,111 @@ export default class MouseHandler extends PointerHandler {
         false
       );
     }
+  }
+
+  static start(
+    this: MouseHandler,
+    state: IRub.PointerStateMachine,
+    event: MouseEvent | TouchEvent
+  ): void {
+    if (!(event instanceof MouseEvent)) {
+      return;
+    }
+
+    if (state.current !== 'idling') {
+      return;
+    }
+
+    state.start();
+
+    const t = performance.now();
+
+    const rect: DOMRect = documentElement.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    this.coords.addTrack([t, x, y]);
+  }
+
+  static move(
+    this: MouseHandler,
+    state: IRub.PointerStateMachine,
+    event: MouseEvent | TouchEvent
+  ): void {
+    if (!(event instanceof MouseEvent)) {
+      return;
+    }
+
+    if (state.current !== 'running') {
+      return;
+    }
+
+    const t = performance.now();
+
+    const rect: DOMRect = documentElement.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    this.coords.addTrack([t, x, y]);
+  }
+
+  static end(
+    this: MouseHandler,
+    state: IRub.PointerStateMachine,
+    event: MouseEvent | TouchEvent
+  ): void {
+    if (!(event instanceof MouseEvent)) {
+      return;
+    }
+
+    if (state.current !== 'running') {
+      return;
+    }
+
+    const t = performance.now();
+
+    const rect: DOMRect = documentElement.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    this.coords.addTrack([t, x, y]);
+
+    state.end();
+  }
+
+  static activate(this: MouseHandler, event: MouseEvent | TouchEvent): void {
+    const index = this.findTargetIndex(
+      (t: IRub.TargetInterface): boolean =>
+        t.el === (event.target as HTMLDivElement)
+    );
+    const target = this.targets[index];
+
+    if (target == null) {
+      return;
+    }
+
+    if (target.state.current !== 'inactive') {
+      return;
+    }
+
+    target.state.activate();
+  }
+
+  static inactivate(this: MouseHandler, event: MouseEvent | TouchEvent): void {
+    const index = this.findTargetIndex(
+      (t: IRub.TargetInterface): boolean =>
+        t.el === (event.target as HTMLDivElement)
+    );
+    const target = this.targets[index];
+
+    if (target == null) {
+      return;
+    }
+
+    if (target.state.current !== 'active') {
+      return;
+    }
+
+    target.state.inactivate();
   }
 }

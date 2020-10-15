@@ -1,4 +1,4 @@
-import { TrackerInterface } from './interface.ts';
+import * as IRub from './interface';
 
 const { floor } = Math;
 
@@ -9,7 +9,7 @@ function SystemGetExecutedInLittleEndian(): boolean {
   return false;
 }
 
-export default class Tracker implements TrackerInterface {
+export default class Tracker implements IRub.TrackerInterface {
   public readonly blockSize: number;
 
   protected tracks: Float32Array;

@@ -1,5 +1,5 @@
-import Tracker from './tracker.ts';
-import { RecordMode, Record, RecorderInterface } from './interface.ts';
+import Tracker from './tracker';
+import * as IRub from './interface';
 
 const TRACK_SIZE = 216000;
 const FPS = 60;
@@ -7,8 +7,8 @@ const PER_FRAME = 1000 / FPS;
 
 const { round } = Math;
 
-export default class Recorder implements RecorderInterface {
-  public record: Record;
+export default class Recorder implements IRub.RecorderInterface {
+  public record: IRub.Record;
 
   private blockSize: number;
 
@@ -23,7 +23,7 @@ export default class Recorder implements RecorderInterface {
   private template: number[];
 
   private shiftedFrames: {
-    [P in RecordMode]: number;
+    [P in IRub.RecordMode]: number;
   };
 
   public constructor(els: HTMLDivElement[]) {
@@ -111,27 +111,27 @@ export default class Recorder implements RecorderInterface {
     this.elapsedTime = 0;
   }
 
-  public clearRecord(mode: RecordMode = 'live'): void {
+  public clearRecord(mode: IRub.RecordMode = 'live'): void {
     (this.record.get(mode) as Tracker).writeFrames();
   }
 
-  public getRecordCount(mode: RecordMode = 'live'): number {
+  public getRecordCount(mode: IRub.RecordMode = 'live'): number {
     return (this.record.get(mode) as Tracker).count;
   }
 
-  public getVelocities(offset = -1, mode: RecordMode = 'live'): number[] {
+  public getVelocities(offset = -1, mode: IRub.RecordMode = 'live'): number[] {
     const shifted = offset + this.shiftedFrames[mode];
     const track = (this.record.get(mode) as Tracker).getTrack(shifted);
     const velocities = Array.from(track.subarray(1));
     return velocities;
   }
 
-  public getRecord(mode: RecordMode = 'live'): Float32Array {
+  public getRecord(mode: IRub.RecordMode = 'live'): Float32Array {
     const tracker = this.record.get(mode) as Tracker;
     return tracker.getTrack(0, tracker.size);
   }
 
-  public setRecord(tracks: Float32Array, mode: RecordMode = 'live'): void {
+  public setRecord(tracks: Float32Array, mode: IRub.RecordMode = 'live'): void {
     (this.record.get(mode) as Tracker).setTrack(tracks);
   }
 
@@ -142,17 +142,24 @@ export default class Recorder implements RecorderInterface {
   public getData(
     offset = -1,
     count = 1,
-    mode: RecordMode = 'live'
+    mode: IRub.RecordMode = 'live'
   ): Float32Array {
     const shifted = offset + this.shiftedFrames[mode];
     return (this.record.get(mode) as Tracker).getTrack(shifted, count);
   }
 
-  public setData(track: number[], offset = 0, mode: RecordMode = 'live'): void {
+  public setData(
+    track: number[],
+    offset = 0,
+    mode: IRub.RecordMode = 'live'
+  ): void {
     (this.record.get(mode) as Tracker).setTrack(track, offset);
   }
 
-  public setShiftedFrames(frames: number, mode: RecordMode = 'live'): void {
+  public setShiftedFrames(
+    frames: number,
+    mode: IRub.RecordMode = 'live'
+  ): void {
     this.shiftedFrames[mode] = frames;
   }
 }

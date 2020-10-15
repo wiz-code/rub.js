@@ -1,12 +1,12 @@
 import { StateMachine } from 'javascript-state-machine';
-import { TargetInterface, TargetStateMachine } from './interface.ts';
-import dataset from './dataset.ts';
+import dataset from './dataset';
+import * as IRub from './interface';
 
-export default class Target implements TargetInterface {
-  public state: TargetStateMachine;
+export default class Target implements IRub.TargetInterface {
+  public state: IRub.TargetStateMachine;
 
   public constructor(public el: HTMLDivElement) {
-    this.state = StateMachine.create(dataset.target) as TargetStateMachine;
+    this.state = StateMachine.create(dataset.target) as IRub.TargetStateMachine;
   }
 
   public isActive(): boolean {

@@ -1,4 +1,4 @@
-import Tracker from '../tracker.ts';
+import Tracker from '../tracker';
 
 const values = [
   0,
@@ -35,7 +35,6 @@ const values = [
 
 let sample;
 // 4500, 100, 200
-
 
 beforeEach(() => {
   sample = Tracker.create(10, 3);
@@ -115,10 +114,35 @@ describe('writeFrames()', () => {
   test('write frames as time series', () => {
     let tracker = Tracker.create(10, 2);
     tracker.writeFrames();
-    expect(tracker.tracks).toEqual(new Float32Array([0, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9, 0]));
+    expect(tracker.tracks).toEqual(
+      new Float32Array([
+        0,
+        0,
+        1,
+        0,
+        2,
+        0,
+        3,
+        0,
+        4,
+        0,
+        5,
+        0,
+        6,
+        0,
+        7,
+        0,
+        8,
+        0,
+        9,
+        0,
+      ])
+    );
 
     tracker = Tracker.create(6, 3);
     tracker.writeFrames();
-    expect(tracker.tracks).toEqual(new Float32Array([0, 0, 0, 1, 0, 0, 2, 0, 0, 3, 0, 0, 4, 0, 0, 5, 0, 0]));
+    expect(tracker.tracks).toEqual(
+      new Float32Array([0, 0, 0, 1, 0, 0, 2, 0, 0, 3, 0, 0, 4, 0, 0, 5, 0, 0])
+    );
   });
 });

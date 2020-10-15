@@ -2,4 +2,3 @@ node_modules/
 *.scss
 *.css
 lib/
-src/__tests__

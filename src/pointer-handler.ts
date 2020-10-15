@@ -1,28 +1,22 @@
 import { StateMachine } from 'javascript-state-machine';
-import {
-  PointerHandlerInterface,
-  PointerStateMachine,
-  ListenerInterface,
-  TargetInterface,
-  TrackerInterface,
-} from './interface.ts';
-import Target from './target.ts';
-import Tracker from './tracker.ts';
-import dataset from './dataset.ts';
+import Target from './target';
+import Tracker from './tracker';
+import dataset from './dataset';
+import * as IRub from './interface';
 
 const BLOCK_SIZE = 3; // [t, x, y]
 const TRACK_SIZE = 900000; // (bytes)
 
-const isActive = (target: TargetInterface): boolean => target.isActive();
+const isActive = (target: IRub.TargetInterface): boolean => target.isActive();
 
-abstract class PointerHandler implements PointerHandlerInterface {
-  protected state: PointerStateMachine;
+abstract class PointerHandler implements IRub.PointerHandlerInterface {
+  protected state: IRub.PointerStateMachine;
 
-  protected listener: ListenerInterface;
+  protected listener: IRub.ListenerInterface;
 
-  protected targets: TargetInterface[];
+  protected targets: IRub.TargetInterface[];
 
-  protected coords: TrackerInterface;
+  protected coords: IRub.TrackerInterface;
 
   protected attached = false;
 
@@ -33,7 +27,9 @@ abstract class PointerHandler implements PointerHandlerInterface {
       return target;
     });
 
-    this.state = StateMachine.create(dataset.pointer) as PointerStateMachine;
+    this.state = StateMachine.create(
+      dataset.pointer
+    ) as IRub.PointerStateMachine;
     this.state.initialize();
 
     this.coords = new Tracker(TRACK_SIZE, BLOCK_SIZE);
@@ -41,7 +37,7 @@ abstract class PointerHandler implements PointerHandlerInterface {
   }
 
   protected findTargetIndex(
-    predicate: (target: TargetInterface) => boolean
+    predicate: (target: IRub.TargetInterface) => boolean
   ): number {
     let result = -1;
 

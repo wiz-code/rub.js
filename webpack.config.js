@@ -1,6 +1,5 @@
 const path = require('path');
 const TerserPlugin = require('terser-webpack-plugin');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
   mode: 'development',
@@ -26,7 +25,7 @@ module.exports = {
       {
         enforce: 'pre',
         test: /\.ts$/,
-        exclude: /(node_modules|dist)/,
+        exclude: /(node_modules|lib)/,
         loader: 'eslint-loader',
         options: {
           fix: true,
@@ -48,9 +47,7 @@ module.exports = {
     ],
   },
 
-  plugins: [
-    new CleanWebpackPlugin(),
-  ],
+  plugins: [],
 
   resolve: {
     alias: {

@@ -70,6 +70,12 @@ export interface PointerHandlerInterface {
   removeListeners(el: HTMLDivElement): void;
 }
 
+export interface TargetStateMachine extends StateMachine.StateMachine {
+  initialize(): void;
+  activate(): void;
+  inactivate(): void;
+}
+
 export interface TargetInterface {
   el: HTMLDivElement;
 
@@ -84,37 +90,6 @@ export type Bounds = {
   recorder: RecorderInterface;
   event: PointerHandlerInterface;
 };
-
-export interface RubInterface {
-  event: PointerHandlerInterface;
-  recorder: RecorderInterface;
-  media: MediaStateMachine;
-  getId(): number;
-  startLoop(): void;
-  stopLoop(): void;
-  clearLoop(): void;
-  getCurrentBoundsType(): BoundsType;
-  setBoundsType(key: BoundsType): void;
-  setMediaCallback(callback: MediaStateCallback): void;
-  addLoopCallback(callback: LoopCallback | LoopCallback[]): void;
-  clearLoopCallback(): void;
-}
-
-export interface PointerStateMachine extends StateMachine.StateMachine {
-  initialize(): void;
-  start(): void;
-  end(): void;
-}
-
-export interface TargetStateMachine extends StateMachine.StateMachine {
-  initialize(): void;
-  activate(): void;
-  inactivate(): void;
-}
-
-export interface ListenerInterface {
-  [index: string]: (event: MouseEvent | TouchEvent) => void;
-}
 
 export interface MediaStateMachine extends StateMachine.StateMachine {
   initialize(): void;
@@ -152,4 +127,29 @@ export interface MediaStateCallback {
   onpending(): void;
   onidling(): void;
   onerror(): void;
+}
+
+export interface MainInterface {
+  event: PointerHandlerInterface;
+  recorder: RecorderInterface;
+  media: MediaStateMachine;
+  getId(): number;
+  startLoop(): void;
+  stopLoop(): void;
+  clearLoop(): void;
+  getCurrentBoundsType(): BoundsType;
+  setBoundsType(key: BoundsType): void;
+  setMediaCallback(callback: MediaStateCallback): void;
+  addLoopCallback(callback: LoopCallback | LoopCallback[]): void;
+  clearLoopCallback(): void;
+}
+
+export interface PointerStateMachine extends StateMachine.StateMachine {
+  initialize(): void;
+  start(): void;
+  end(): void;
+}
+
+export interface ListenerInterface {
+  [index: string]: (event: MouseEvent | TouchEvent) => void;
 }

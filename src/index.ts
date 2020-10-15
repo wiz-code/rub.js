@@ -1,18 +1,9 @@
 import * as JSM from 'javascript-state-machine';
-import MouseHandler from './mouse-handler.ts';
-import TouchHandler from './touch-handler.ts';
-import Recorder from './recorder.ts';
-import dataset from './dataset.ts';
-import {
-  MediaStateMachine,
-  MediaStateCallback,
-  BoundsType,
-  Bounds,
-  LoopCallback,
-  RecorderInterface,
-  PointerHandlerInterface,
-  RubInterface,
-} from './interface.ts';
+import MouseHandler from './mouse-handler';
+import TouchHandler from './touch-handler';
+import Recorder from './recorder';
+import dataset from './dataset';
+import * as IRub from './interface';
 
 interface Loop {
   (ctime: number): void;
@@ -44,18 +35,18 @@ function genId(): number {
   return id;
 }
 
-export default class Rub implements RubInterface {
+export default class Rub implements IRub.MainInterface {
   private id: number;
 
-  private bounds: Map<BoundsType, Bounds> = new Map();
+  private bounds: Map<IRub.BoundsType, IRub.Bounds> = new Map();
 
-  private currentBoundsType: BoundsType;
+  private currentBoundsType: IRub.BoundsType;
 
   private inputId = 0;
 
   private outputId = 0;
 
-  private loopCallbacks: LoopCallback[] = [];
+  private loopCallbacks: IRub.LoopCallback[] = [];
 
   private input: Loop;
 
@@ -69,15 +60,15 @@ export default class Rub implements RubInterface {
 
   private y0 = 0;
 
-  public event: PointerHandlerInterface;
+  public event: IRub.PointerHandlerInterface;
 
-  public recorder: RecorderInterface;
+  public recorder: IRub.RecorderInterface;
 
-  public media: MediaStateMachine;
+  public media: IRub.MediaStateMachine;
 
   public constructor(
     private container: HTMLDivElement,
-    callback?: LoopCallback | LoopCallback[]
+    callback?: IRub.LoopCallback | IRub.LoopCallback[]
   ) {
     this.id = genId();
 
@@ -88,7 +79,7 @@ export default class Rub implements RubInterface {
 
     for (let i = 0, l = els.length; i < l; i += 1) {
       const el = els[i];
-      const identifier = el.dataset.boundsType as BoundsType;
+      const identifier = el.dataset.boundsType as IRub.BoundsType;
 
       if (identifier == null) {
         throw new Error('cannot find identified class name');
@@ -106,13 +97,13 @@ export default class Rub implements RubInterface {
     }
 
     const [key] = Array.from(this.bounds.keys());
-    const bounds = this.bounds.get(key) as Bounds;
+    const bounds = this.bounds.get(key) as IRub.Bounds;
     this.currentBoundsType = key;
     this.recorder = bounds.recorder;
     this.event = bounds.event;
     this.event.addListeners(this.container);
 
-    this.media = JSM.create(dataset.media) as MediaStateMachine;
+    this.media = JSM.create(dataset.media) as IRub.MediaStateMachine;
 
     if (callback != null) {
       this.addLoopCallback(callback);
@@ -194,11 +185,11 @@ export default class Rub implements RubInterface {
     this.resetBoundsType();
   }
 
-  public getCurrentBoundsType(): BoundsType {
+  public getCurrentBoundsType(): IRub.BoundsType {
     return this.currentBoundsType;
   }
 
-  public setBoundsType(key: BoundsType): void {
+  public setBoundsType(key: IRub.BoundsType): void {
     const bounds = this.bounds.get(key);
 
     if (bounds == null) {
@@ -215,11 +206,13 @@ export default class Rub implements RubInterface {
     this.setEventHandler();
   }
 
-  public setMediaCallback(callback: MediaStateCallback): void {
+  public setMediaCallback(callback: IRub.MediaStateCallback): void {
     Object.assign(this.media, callback);
   }
 
-  public addLoopCallback(callback: LoopCallback | LoopCallback[]): void {
+  public addLoopCallback(
+    callback: IRub.LoopCallback | IRub.LoopCallback[]
+  ): void {
     if (!Array.isArray(callback)) {
       this.loopCallbacks.push(callback.bind(this));
     } else {
