@@ -1,4 +1,4 @@
-import * as IRub from './interface';
+import * as IRub from 'Mod/interface';
 export default class Rub implements IRub.MainInterface {
     private container;
     private id;

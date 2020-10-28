@@ -1,4 +1,4 @@
-import Tracker from '../tracker';
+import Tracker from '../modules/tracker';
 
 const values = [
   0,

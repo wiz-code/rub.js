@@ -28,7 +28,11 @@
 
     "esModuleInterop": true,
     "moduleResolution": "node",
-    "baseUrl": "."
+
+    "baseUrl": ".",
+    "paths": {
+      "Mod/*": ["./src/modules/*"]
+    }
   },
   "files": ["./src/index.ts"],
   "include": [],

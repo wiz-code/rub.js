@@ -1,0 +1,1 @@
+{"version":3,"file":"target.d.ts","sourceRoot":"","sources":["../../src/modules/target.ts"],"names":[],"mappings":"AAEA,OAAO,KAAK,IAAI,MAAM,aAAa,CAAC;AAEpC,MAAM,CAAC,OAAO,OAAO,MAAO,YAAW,IAAI,CAAC,eAAe;IAG/B,EAAE,EAAE,cAAc;IAFrC,KAAK,EAAE,IAAI,CAAC,kBAAkB,CAAC;gBAEZ,EAAE,EAAE,cAAc;IAIrC,QAAQ,IAAI,OAAO;CAG3B"}

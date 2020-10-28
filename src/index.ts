@@ -1,9 +1,9 @@
 import * as JSM from 'javascript-state-machine';
-import MouseHandler from './mouse-handler';
-import TouchHandler from './touch-handler';
-import Recorder from './recorder';
-import dataset from './dataset';
-import * as IRub from './interface';
+import MouseHandler from 'Mod/mouse-handler';
+import TouchHandler from 'Mod/touch-handler';
+import Recorder from 'Mod/recorder';
+import dataset from 'Mod/dataset';
+import * as IRub from 'Mod/interface';
 
 interface Loop {
   (ctime: number): void;

@@ -19,6 +19,16 @@
   "parserOptions": {
     "sourceType": "module"
   },
+  "settings": {
+    "import/parser": {
+      "@typescript-eslint/parser": [".ts", ".tsx"]
+    },
+    "import/resolver": {
+      "typescript": {
+        "project": "./tsconfig.json"
+      }
+    }
+  },
   "rules": {
     "import/extensions": [
       "error",
