@@ -54,7 +54,6 @@ module.exports = {
   resolve: {
     alias: {
       Src: path.resolve(__dirname, 'src'),
-      Mod: path.resolve(__dirname, 'src/modules'),
     },
     extensions: ['.js', '.ts'],
   },

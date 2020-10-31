@@ -30,9 +30,7 @@
     "moduleResolution": "node",
 
     "baseUrl": ".",
-    "paths": {
-      "Mod/*": ["./src/modules/*"]
-    }
+    "paths": {}
   },
   "files": ["./src/index.ts"],
   "include": [],
