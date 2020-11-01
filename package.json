@@ -1,6 +1,6 @@
 {
   "name": "rub",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "author": "Masa",
   "main": "./lib/rub.js",
   "types": "./lib/index.d.ts",
@@ -12,8 +12,8 @@
   },
   "scripts": {
     "lint": "eslint './src/**' --ext .js,.ts --fix",
-    "build": "webpack",
-    "tsc": "tsc --project ./tsconfig.json",
+    "build": "rm -rf lib/* && webpack",
+    "type-check": "tsc --project ./tsconfig.json --noEmit",
     "test": "jest"
   },
   "devDependencies": {
@@ -24,7 +24,6 @@
     "@typescript-eslint/parser": "^4.4.1",
     "@typescript-eslint/typescript-estree": "^4.4.1",
     "babel-jest": "^26.5.2",
-    "clean-webpack-plugin": "^3.0.0",
     "eslint": "^7.11.0",
     "eslint-config-airbnb-base": "^14.1.0",
     "eslint-config-prettier": "^6.12.0",

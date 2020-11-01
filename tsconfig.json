@@ -30,7 +30,10 @@
     "moduleResolution": "node",
 
     "baseUrl": ".",
-    "paths": {}
+    "paths": {},
+
+    "typeRoots": null,
+    "types": ["javascript-state-machine"]
   },
   "files": ["./src/index.ts"],
   "include": [],
