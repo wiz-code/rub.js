@@ -1,4 +1,4 @@
-import * as JSM from 'javascript-state-machine';
+import StateMachine from 'javascript-state-machine';
 import MouseHandler from './modules/mouse-handler';
 import TouchHandler from './modules/touch-handler';
 import Recorder from './modules/recorder';
@@ -103,7 +103,7 @@ export default class Rub implements IRub.MainInterface {
     this.event = bounds.event;
     this.event.addListeners(this.container);
 
-    this.media = JSM.create(dataset.media) as IRub.MediaStateMachine;
+    this.media = StateMachine.create(dataset.media) as IRub.MediaStateMachine;
 
     if (callback != null) {
       this.addLoopCallback(callback);
