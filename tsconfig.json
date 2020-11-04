@@ -32,8 +32,7 @@
     "baseUrl": ".",
     "paths": {},
 
-    "typeRoots": null,
-    "types": ["javascript-state-machine"]
+    "typeRoots": null
   },
   "files": ["./src/index.ts"],
   "include": [],
