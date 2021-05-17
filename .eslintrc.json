@@ -25,7 +25,7 @@
     },
     "import/resolver": {
       "typescript": {
-        "project": "./tsconfig.json"
+        "project": "src/*/tsconfig.json"
       }
     }
   },

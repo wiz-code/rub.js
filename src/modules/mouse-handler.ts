@@ -1,6 +1,6 @@
-import PointerHandler from './pointer-handler';
+import PointerHandler, { PointerStateMachine } from './pointer-handler';
+import Target from './target';
 import EventType from './event-type';
-import * as IRub from './interface';
 
 const { documentElement } = document;
 
@@ -73,7 +73,7 @@ export default class MouseHandler extends PointerHandler {
 
   static start(
     this: MouseHandler,
-    state: IRub.PointerStateMachine,
+    state: PointerStateMachine,
     event: MouseEvent | TouchEvent
   ): void {
     if (!(event instanceof MouseEvent)) {
@@ -97,7 +97,7 @@ export default class MouseHandler extends PointerHandler {
 
   static move(
     this: MouseHandler,
-    state: IRub.PointerStateMachine,
+    state: PointerStateMachine,
     event: MouseEvent | TouchEvent
   ): void {
     if (!(event instanceof MouseEvent)) {
@@ -119,7 +119,7 @@ export default class MouseHandler extends PointerHandler {
 
   static end(
     this: MouseHandler,
-    state: IRub.PointerStateMachine,
+    state: PointerStateMachine,
     event: MouseEvent | TouchEvent
   ): void {
     if (!(event instanceof MouseEvent)) {
@@ -143,8 +143,7 @@ export default class MouseHandler extends PointerHandler {
 
   static activate(this: MouseHandler, event: MouseEvent | TouchEvent): void {
     const index = this.findTargetIndex(
-      (t: IRub.TargetInterface): boolean =>
-        t.el === (event.target as HTMLDivElement)
+      (t: Target): boolean => t.el === (event.target as HTMLDivElement)
     );
     const target = this.targets[index];
 
@@ -161,8 +160,7 @@ export default class MouseHandler extends PointerHandler {
 
   static inactivate(this: MouseHandler, event: MouseEvent | TouchEvent): void {
     const index = this.findTargetIndex(
-      (t: IRub.TargetInterface): boolean =>
-        t.el === (event.target as HTMLDivElement)
+      (t: Target): boolean => t.el === (event.target as HTMLDivElement)
     );
     const target = this.targets[index];
 

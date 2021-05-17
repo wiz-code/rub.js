@@ -6,16 +6,18 @@
 
     "allowJs": true,
     "checkJs": true,
-    "declaration": true,
-    "declarationMap": true,
+    "declaration": false,
+    "declarationMap": false,
     "jsx": "preserve",
-    "sourceMap": true,
+    "sourceMap": false,
 
-    "outDir": "./lib",
-    "rootDir": "./src",
+    "outDir": "../lib",
+    "rootDir": ".",
 
     "composite": false,
-    "noEmit": false,
+    "noEmit": true,
+    "emitDeclarationOnly": false,
+    "isolatedModules": true,
 
     "strict": false,
     "noImplicitAny": true,
@@ -29,16 +31,12 @@
     "esModuleInterop": true,
     "moduleResolution": "node",
 
-    "baseUrl": ".",
+    "baseUrl": "../",
     "paths": {},
 
     "typeRoots": null
   },
-  "files": ["./src/index.ts"],
+  "files": ["index.ts"],
   "include": [],
-  "exclude": [
-    "./node_modules",
-    "./src/__tests__",
-    "./lib"
-  ]
+  "exclude": ["../node_modules", "../src/__tests__", "../lib"]
 }

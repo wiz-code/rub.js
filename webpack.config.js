@@ -1,6 +1,5 @@
 const path = require('path');
 const TerserPlugin = require('terser-webpack-plugin');
-// const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
   mode: 'development',
@@ -17,23 +16,18 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'lib'),
     filename: '[name].js',
-    library: 'Rub',
-    libraryTarget: 'umd',
+    library: {
+      name: 'Rub',
+      type: 'umd',
+    },
+    clean: true,
   },
 
   module: {
     rules: [
       {
-        enforce: 'pre',
         test: /\.ts$/,
-        loader: 'eslint-loader',
-        options: {
-          fix: true,
-        },
-      },
-      {
-        test: /\.ts$/,
-        use: 'ts-loader',
+        loader: 'babel-loader',
       },
     ],
   },
@@ -47,9 +41,7 @@ module.exports = {
     ],
   },
 
-  plugins: [
-    // new CleanWebpackPlugin(),
-  ],
+  plugins: [],
 
   resolve: {
     alias: {

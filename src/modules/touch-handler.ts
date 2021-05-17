@@ -1,6 +1,5 @@
-import PointerHandler from './pointer-handler';
+import PointerHandler, { PointerStateMachine } from './pointer-handler';
 import EventType from './event-type';
-import * as IRub from './interface';
 
 const { documentElement } = document;
 
@@ -49,7 +48,7 @@ export default class TouchHandler extends PointerHandler {
 
   static start(
     this: TouchHandler,
-    state: IRub.PointerStateMachine,
+    state: PointerStateMachine,
     event: MouseEvent | TouchEvent
   ): void {
     if (!(event instanceof TouchEvent)) {
@@ -74,7 +73,7 @@ export default class TouchHandler extends PointerHandler {
 
   static move(
     this: TouchHandler,
-    state: IRub.PointerStateMachine,
+    state: PointerStateMachine,
     event: MouseEvent | TouchEvent
   ): void {
     if (!(event instanceof TouchEvent)) {
@@ -118,7 +117,7 @@ export default class TouchHandler extends PointerHandler {
 
   static end(
     this: TouchHandler,
-    state: IRub.PointerStateMachine,
+    state: PointerStateMachine,
     event: MouseEvent | TouchEvent
   ): void {
     if (!(event instanceof TouchEvent)) {

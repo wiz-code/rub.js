@@ -1,5 +1,3 @@
-import * as IRub from './interface';
-
 const { floor } = Math;
 
 function SystemGetExecutedInLittleEndian(): boolean {
@@ -9,7 +7,7 @@ function SystemGetExecutedInLittleEndian(): boolean {
   return false;
 }
 
-export default class Tracker implements IRub.TrackerInterface {
+export default class Tracker {
   public readonly blockSize: number;
 
   protected tracks: Float32Array;
@@ -88,9 +86,5 @@ export default class Tracker implements IRub.TrackerInterface {
         count += 1;
       }
     }
-  }
-
-  public static create(length: number, blockSize: number): Tracker {
-    return new Tracker(length, blockSize);
   }
 }

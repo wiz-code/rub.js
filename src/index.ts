@@ -1,12 +1,57 @@
 import StateMachine from 'javascript-state-machine';
+import PointerHandler from './modules/pointer-handler';
 import MouseHandler from './modules/mouse-handler';
 import TouchHandler from './modules/touch-handler';
 import Recorder from './modules/recorder';
 import dataset from './modules/dataset';
-import * as IRub from './modules/interface';
+
+type BoundsType = 'basic' | 'uptempo' | 'ballade' | 'rating';
+type Bounds = {
+  recorder: Recorder;
+  event: PointerHandler;
+};
+type LoopCallback = (frames: number) => void;
 
 interface Loop {
   (ctime: number): void;
+}
+
+interface MediaStateMachine extends StateMachine.StateMachine {
+  initialize(): void;
+
+  ready(): void;
+
+  reset(): void;
+
+  start(): void;
+
+  stop(): void;
+
+  pause(): void;
+
+  resume(): void;
+
+  quit(): void;
+
+  abort(): void;
+}
+
+interface MediaStateCallback {
+  oninitialize(): void;
+  onready(): void;
+  onreset(): void;
+  onstart(): void;
+  onstop(): void;
+  onpause(): void;
+  onresume(): void;
+  onquit(): void;
+  onabort(): void;
+
+  oninitialized(): void;
+  onrunning(): void;
+  onpending(): void;
+  onidling(): void;
+  onerror(): void;
 }
 
 const MIN_INTERVAL = 4;
@@ -35,18 +80,18 @@ function genId(): number {
   return id;
 }
 
-export default class Rub implements IRub.MainInterface {
+export default class Rub {
   private id: number;
 
-  private bounds: Map<IRub.BoundsType, IRub.Bounds> = new Map();
+  private bounds: Map<BoundsType, Bounds> = new Map();
 
-  private currentBoundsType: IRub.BoundsType;
+  private currentBoundsType: BoundsType;
 
   private inputId = 0;
 
   private outputId = 0;
 
-  private loopCallbacks: IRub.LoopCallback[] = [];
+  private loopCallbacks: LoopCallback[] = [];
 
   private input: Loop;
 
@@ -60,15 +105,15 @@ export default class Rub implements IRub.MainInterface {
 
   private y0 = 0;
 
-  public event: IRub.PointerHandlerInterface;
+  public event: PointerHandler;
 
-  public recorder: IRub.RecorderInterface;
+  public recorder: Recorder;
 
-  public media: IRub.MediaStateMachine;
+  public media: MediaStateMachine;
 
   public constructor(
     private container: HTMLDivElement,
-    callback?: IRub.LoopCallback | IRub.LoopCallback[]
+    callback?: LoopCallback | LoopCallback[]
   ) {
     this.id = genId();
 
@@ -79,7 +124,7 @@ export default class Rub implements IRub.MainInterface {
 
     for (let i = 0, l = els.length; i < l; i += 1) {
       const el = els[i];
-      const identifier = el.dataset.boundsType as IRub.BoundsType;
+      const identifier = el.dataset.boundsType as BoundsType;
 
       if (identifier == null) {
         throw new Error('cannot find identified class name');
@@ -97,13 +142,13 @@ export default class Rub implements IRub.MainInterface {
     }
 
     const [key] = Array.from(this.bounds.keys());
-    const bounds = this.bounds.get(key) as IRub.Bounds;
+    const bounds = this.bounds.get(key) as Bounds;
     this.currentBoundsType = key;
     this.recorder = bounds.recorder;
     this.event = bounds.event;
     this.event.addListeners(this.container);
 
-    this.media = StateMachine.create(dataset.media) as IRub.MediaStateMachine;
+    this.media = StateMachine.create(dataset.media) as MediaStateMachine;
 
     if (callback != null) {
       this.addLoopCallback(callback);
@@ -185,11 +230,11 @@ export default class Rub implements IRub.MainInterface {
     this.resetBoundsType();
   }
 
-  public getCurrentBoundsType(): IRub.BoundsType {
+  public getCurrentBoundsType(): BoundsType {
     return this.currentBoundsType;
   }
 
-  public setBoundsType(key: IRub.BoundsType): void {
+  public setBoundsType(key: BoundsType): void {
     const bounds = this.bounds.get(key);
 
     if (bounds == null) {
@@ -206,13 +251,11 @@ export default class Rub implements IRub.MainInterface {
     this.setEventHandler();
   }
 
-  public setMediaCallback(callback: IRub.MediaStateCallback): void {
+  public setMediaCallback(callback: MediaStateCallback): void {
     Object.assign(this.media, callback);
   }
 
-  public addLoopCallback(
-    callback: IRub.LoopCallback | IRub.LoopCallback[]
-  ): void {
+  public addLoopCallback(callback: LoopCallback | LoopCallback[]): void {
     if (!Array.isArray(callback)) {
       this.loopCallbacks.push(callback.bind(this));
     } else {
