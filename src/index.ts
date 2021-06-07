@@ -58,7 +58,7 @@ interface MediaStateCallback {
 }
 
 const MIN_INTERVAL = 4;
-const REGION_ID = 'rb-region';
+const REGION_ID = 'rub-region';
 const { abs, max } = Math;
 
 function isTouchEnabled(): boolean {
@@ -123,7 +123,7 @@ export default class Rub {
 
     for (let i = 0, l = zones.length; i < l; i += 1) {
       const zone = zones[i];
-      const zoneType = zone.dataset.zone as ZoneType;
+      const zoneType = zone.dataset.zoneType as ZoneType;
 
       if (zoneType == null) {
         throw new Error('cannot find identified class name');
