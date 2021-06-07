@@ -5,10 +5,13 @@ import TouchHandler from './modules/touch-handler';
 import Recorder from './modules/recorder';
 import dataset from './modules/dataset';
 
-type BoundsType = 'basic' | 'uptempo' | 'ballade' | 'rating';
-type Bounds = {
+type ZoneType = 'basic' | 'uptempo' | 'ballade' | 'rating';
+type Zone = {
   recorder: Recorder;
   event: PointerHandler;
+};
+type Region = {
+  [key in ZoneType]: Zone;
 };
 type LoopCallback = (frames: number) => void;
 
@@ -55,7 +58,7 @@ interface MediaStateCallback {
 }
 
 const MIN_INTERVAL = 4;
-const BOUNDS_ID = 'rb-bounds';
+const REGION_ID = 'rb-region';
 const { abs, max } = Math;
 
 function isTouchEnabled(): boolean {
@@ -83,9 +86,9 @@ function genId(): number {
 export default class Rub {
   private id: number;
 
-  private bounds: Map<BoundsType, Bounds> = new Map();
+  private region: Partial<Region> = {};
 
-  private currentBoundsType: BoundsType;
+  private currentZoneType: ZoneType;
 
   private inputId = 0;
 
@@ -105,10 +108,6 @@ export default class Rub {
 
   private y0 = 0;
 
-  public event: PointerHandler;
-
-  public recorder: Recorder;
-
   public media: MediaStateMachine;
 
   public constructor(
@@ -117,36 +116,34 @@ export default class Rub {
   ) {
     this.id = genId();
 
-    const boundsContainer = this.container.querySelector(
-      `.${BOUNDS_ID}`
+    const regionContainer = this.container.querySelector(
+      `.${REGION_ID}`
     ) as HTMLDivElement;
-    const els = Array.from(boundsContainer.children) as HTMLDivElement[];
+    const zones = Array.from(regionContainer.children) as HTMLDivElement[];
 
-    for (let i = 0, l = els.length; i < l; i += 1) {
-      const el = els[i];
-      const identifier = el.dataset.boundsType as BoundsType;
+    for (let i = 0, l = zones.length; i < l; i += 1) {
+      const zone = zones[i];
+      const zoneType = zone.dataset.zone as ZoneType;
 
-      if (identifier == null) {
+      if (zoneType == null) {
         throw new Error('cannot find identified class name');
       }
 
       const targetEls =
-        el.childElementCount > 0 ? Array.from(el.children) : [el];
+        zone.childElementCount > 0 ? Array.from(zone.children) : [zone];
 
       const Handler = !isTouchEnabled() ? MouseHandler : TouchHandler;
 
-      this.bounds.set(identifier, {
+      this.region[zoneType] = {
         recorder: new Recorder(targetEls as HTMLDivElement[]),
         event: new Handler(targetEls as HTMLDivElement[]),
-      });
+      };
     }
 
-    const [key] = Array.from(this.bounds.keys());
-    const bounds = this.bounds.get(key) as Bounds;
-    this.currentBoundsType = key;
-    this.recorder = bounds.recorder;
-    this.event = bounds.event;
-    this.event.addListeners(this.container);
+    const [key] = Object.keys(this.region) as Array<ZoneType>;
+    const zone = this.region[key] as Zone;
+    this.currentZoneType = key;
+    zone.event.addListeners(this.container);
 
     this.media = StateMachine.create(dataset.media) as MediaStateMachine;
 
@@ -155,8 +152,10 @@ export default class Rub {
     }
 
     this.output = (): void => {
+      const { recorder } = this.getCurrentZone();
+
       if (this.loopCallbacks.length > 0) {
-        const frames = this.recorder.getFrames();
+        const frames = recorder.getFrames();
 
         for (let i = 0, l = this.loopCallbacks.length; i < l; i += 1) {
           this.loopCallbacks[i](frames);
@@ -167,13 +166,14 @@ export default class Rub {
     };
 
     this.input = (ctime: number): void => {
+      const { event, recorder } = this.getCurrentZone();
       let velocity = 0;
       let targetIndex = -1;
 
-      if (this.event.isAttached()) {
-        const count = this.event.getEventTrackCount();
+      if (event.isAttached()) {
+        const count = event.getEventTrackCount();
         if (count > this.offset) {
-          const track = this.event.getEventTrack();
+          const track = event.getEventTrack();
           const [t, x, y] = Array.from(track);
 
           if (this.t0 > 0) {
@@ -193,10 +193,10 @@ export default class Rub {
           this.offset = count;
         }
 
-        targetIndex = this.event.getActiveTargetIndex();
+        targetIndex = event.getActiveTargetIndex();
       }
 
-      this.recorder.update(ctime, velocity, targetIndex);
+      recorder.update(ctime, velocity, targetIndex);
 
       this.inputId = requestAnimationFrame(this.input);
     };
@@ -214,7 +214,9 @@ export default class Rub {
 
   /* レコーディングを一時停止する。経過時間は停止した時点のまま */
   public stopLoop(): void {
-    this.recorder.suspend();
+    const { recorder } = this.getCurrentZone();
+
+    recorder.suspend();
 
     cancelAnimationFrame(this.inputId);
     cancelAnimationFrame(this.outputId);
@@ -227,27 +229,29 @@ export default class Rub {
     this.y0 = 0;
     this.offset = 0;
 
-    this.resetBoundsType();
+    this.resetZone();
   }
 
-  public getCurrentBoundsType(): BoundsType {
-    return this.currentBoundsType;
+  public getCurrentZoneType(): ZoneType {
+    return this.currentZoneType;
   }
 
-  public setBoundsType(key: BoundsType): void {
-    const bounds = this.bounds.get(key);
+  public getCurrentZone(): Zone {
+    return this.region[this.currentZoneType] as Zone;
+  }
 
-    if (bounds == null) {
+  public setZone(key: ZoneType): void {
+    const zone = this.region[key];
+
+    if (zone == null) {
       throw new Error('this is assigned undefined');
     }
 
-    this.currentBoundsType = key;
+    this.currentZoneType = key;
 
-    this.resetBoundsType();
+    this.resetZone();
     this.removeEventHandler();
 
-    this.recorder = bounds.recorder;
-    this.event = bounds.event;
     this.setEventHandler();
   }
 
@@ -270,19 +274,25 @@ export default class Rub {
   }
 
   private setEventHandler(): void {
-    if (!this.event.isAttached()) {
-      this.event.addListeners(this.container);
+    const { event } = this.getCurrentZone();
+
+    if (!event.isAttached()) {
+      event.addListeners(this.container);
     }
   }
 
   private removeEventHandler(): void {
-    if (this.event.isAttached()) {
-      this.event.removeListeners(this.container);
+    const { event } = this.getCurrentZone();
+
+    if (event.isAttached()) {
+      event.removeListeners(this.container);
     }
   }
 
-  private resetBoundsType(): void {
-    this.event.clearEventTracks();
-    this.recorder.resetFrames();
+  private resetZone(): void {
+    const { event, recorder } = this.getCurrentZone();
+
+    event.clearEventTracks();
+    recorder.resetFrames();
   }
 }
