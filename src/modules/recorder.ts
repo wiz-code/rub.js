@@ -6,7 +6,7 @@ const PER_FRAME = 1000 / FPS;
 
 const { round } = Math;
 
-type RecordMode = 'live' | 'playback' | 'external';
+export type RecordMode = 'live' | 'playback' | 'external';
 type Record = Map<RecordMode, Tracker>;
 
 export default class Recorder {
@@ -114,14 +114,16 @@ export default class Recorder {
   }
 
   public clearRecord(mode: RecordMode = 'live'): void {
+    // 不使用
     (this.record.get(mode) as Tracker).writeFrames();
   }
 
   public getRecordCount(mode: RecordMode = 'live'): number {
+    // 不使用
     return (this.record.get(mode) as Tracker).count;
   }
 
-  public getVelocities(offset = -1, mode: RecordMode = 'live'): number[] {
+  public getVelocity(offset = -1, mode: RecordMode = 'live'): number[] {
     const shifted = offset + this.shiftedFrames[mode];
     const track = (this.record.get(mode) as Tracker).getTrack(shifted);
     const velocities = Array.from(track.subarray(1));
@@ -138,6 +140,7 @@ export default class Recorder {
   }
 
   public addData(data: number[]): void {
+    // 削除予定
     (this.record.get('live') as Tracker).addTrack(data);
   }
 
@@ -146,11 +149,13 @@ export default class Recorder {
     count = 1,
     mode: RecordMode = 'live'
   ): Float32Array {
+    // 不使用
     const shifted = offset + this.shiftedFrames[mode];
     return (this.record.get(mode) as Tracker).getTrack(shifted, count);
   }
 
   public setData(track: number[], offset = 0, mode: RecordMode = 'live'): void {
+    // 不使用
     (this.record.get(mode) as Tracker).setTrack(track, offset);
   }
 

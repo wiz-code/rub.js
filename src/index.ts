@@ -2,10 +2,10 @@ import StateMachine from 'javascript-state-machine';
 import PointerHandler from './modules/pointer-handler';
 import MouseHandler from './modules/mouse-handler';
 import TouchHandler from './modules/touch-handler';
-import Recorder from './modules/recorder';
+import Recorder, { RecordMode } from './modules/recorder';
 import dataset from './modules/dataset';
 
-type ZoneType = 'basic' | 'uptempo' | 'ballade' | 'rating';
+type ZoneType = 'single' | 'double';
 type Zone = {
   recorder: Recorder;
   event: PointerHandler;
@@ -14,10 +14,6 @@ type Region = {
   [key in ZoneType]: Zone;
 };
 type LoopCallback = (frames: number) => void;
-
-interface Loop {
-  (ctime: number): void;
-}
 
 interface MediaStateMachine extends StateMachine.StateMachine {
   initialize(): void;
@@ -96,10 +92,6 @@ export default class Rub {
 
   private loopCallbacks: LoopCallback[] = [];
 
-  private input: Loop;
-
-  private output: Loop;
-
   private offset = 0;
 
   private t0 = 0;
@@ -150,56 +142,56 @@ export default class Rub {
     if (callback != null) {
       this.addLoopCallback(callback);
     }
+  }
 
-    this.output = (): void => {
-      const { recorder } = this.getCurrentZone();
+  private output(): void {
+    const { recorder } = this.getCurrentZone();
 
-      if (this.loopCallbacks.length > 0) {
-        const frames = recorder.getFrames();
+    if (this.loopCallbacks.length > 0) {
+      const frames = recorder.getFrames();
 
-        for (let i = 0, l = this.loopCallbacks.length; i < l; i += 1) {
-          this.loopCallbacks[i](frames);
-        }
+      for (let i = 0, l = this.loopCallbacks.length; i < l; i += 1) {
+        this.loopCallbacks[i](frames);
       }
+    }
 
-      this.outputId = requestAnimationFrame(this.output);
-    };
+    this.outputId = requestAnimationFrame(this.output);
+  }
 
-    this.input = (ctime: number): void => {
-      const { event, recorder } = this.getCurrentZone();
-      let velocity = 0;
-      let targetIndex = -1;
+  private input(ctime: number): void {
+    const { event, recorder } = this.getCurrentZone();
+    let velocity = 0;
+    let targetIndex = -1;
 
-      if (event.isAttached()) {
-        const count = event.getEventTrackCount();
-        if (count > this.offset) {
-          const track = event.getEventTrack();
-          const [t, x, y] = Array.from(track);
+    if (event.isAttached()) {
+      const count = event.getEventTrackCount();
+      if (count > this.offset) {
+        const track = event.getEventTrack();
+        const [t, x, y] = Array.from(track);
 
-          if (this.t0 > 0) {
-            const dt = t - this.t0;
-            const dx = x - this.x0;
-            const dy = y - this.y0;
+        if (this.t0 > 0) {
+          const dt = t - this.t0;
+          const dx = x - this.x0;
+          const dy = y - this.y0;
 
-            if (dt > MIN_INTERVAL) {
-              velocity = getVelocity(dt, dx, dy);
-            }
+          if (dt > MIN_INTERVAL) {
+            velocity = getVelocity(dt, dx, dy);
           }
-
-          this.t0 = t;
-          this.x0 = x;
-          this.y0 = y;
-
-          this.offset = count;
         }
 
-        targetIndex = event.getActiveTargetIndex();
+        this.t0 = t;
+        this.x0 = x;
+        this.y0 = y;
+
+        this.offset = count;
       }
 
-      recorder.update(ctime, velocity, targetIndex);
+      targetIndex = event.getActiveTargetIndex();
+    }
 
-      this.inputId = requestAnimationFrame(this.input);
-    };
+    recorder.update(ctime, velocity, targetIndex);
+
+    this.inputId = requestAnimationFrame(this.input);
   }
 
   public getId(): number {
@@ -294,5 +286,25 @@ export default class Rub {
 
     event.clearEventTracks();
     recorder.resetFrames();
+  }
+
+  public getVelocity(offset = -1, mode: RecordMode = 'live'): number[] {
+    const { recorder } = this.getCurrentZone();
+    return recorder.getVelocity(offset, mode);
+  }
+
+  public shiftFrames(frames: number, mode: RecordMode = 'live'): void {
+    const { recorder } = this.getCurrentZone();
+    recorder.setShiftedFrames(frames, mode);
+  }
+
+  public getFrames(): number {
+    const { recorder } = this.getCurrentZone();
+    return recorder.getFrames();
+  }
+
+  public setFrames(frames: number): void {
+    const { recorder } = this.getCurrentZone();
+    recorder.setFrames(frames);
   }
 }

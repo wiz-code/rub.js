@@ -51,6 +51,7 @@ export default class Tracker {
 
   /* addTrack(), getLastTrack()はRecorderクラスでの使用を想定 */
   public addTrack(track: number[]): void {
+    // 削除予定
     if (track.length % this.blockSize !== 0) {
       throw new Error('Track size not matched');
     }
