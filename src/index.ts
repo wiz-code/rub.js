@@ -2,16 +2,17 @@ import StateMachine from 'javascript-state-machine';
 import PointerHandler from './modules/pointer-handler';
 import MouseHandler from './modules/mouse-handler';
 import TouchHandler from './modules/touch-handler';
-import Recorder, { RecordMode } from './modules/recorder';
+import Recorder from './modules/recorder';
 import dataset from './modules/dataset';
 
-type ZoneType = 'single' | 'double';
+type ZoneName = string;
+type ZoneType = 'single' | 'multiple';
 type Zone = {
   recorder: Recorder;
   event: PointerHandler;
 };
 type Region = {
-  [key in ZoneType]: Zone;
+  [key in ZoneName]: Zone;
 };
 type LoopCallback = (frames: number) => void;
 
@@ -54,7 +55,7 @@ interface MediaStateCallback {
 }
 
 const MIN_INTERVAL = 4;
-const REGION_ID = 'rub-region';
+const REGION_ID = 'tracking-region';
 const { abs, max } = Math;
 
 function isTouchEnabled(): boolean {
@@ -65,7 +66,7 @@ function isTouchEnabled(): boolean {
   );
 }
 
-function getVelocity(dt: number, dx: number, dy: number): number {
+function calcVelocity(dt: number, dx: number, dy: number): number {
   if (dt > 0) {
     return max(abs(dx / dt), abs(dy / dt));
   }
@@ -84,7 +85,7 @@ export default class Rub {
 
   private region: Partial<Region> = {};
 
-  private currentZoneType: ZoneType;
+  private currentZoneName: ZoneName;
 
   private inputId = 0;
 
@@ -115,26 +116,27 @@ export default class Rub {
 
     for (let i = 0, l = zones.length; i < l; i += 1) {
       const zone = zones[i];
+      const zoneName = zone.dataset.ZoneName as ZoneName;
       const zoneType = zone.dataset.zoneType as ZoneType;
 
-      if (zoneType == null) {
-        throw new Error('cannot find identified class name');
+      if (zoneName == null) {
+        throw new Error('cannot find identified zone name');
       }
 
       const targetEls =
-        zone.childElementCount > 0 ? Array.from(zone.children) : [zone];
+        zoneType !== 'single' ? Array.from(zone.children) : [zone];
 
       const Handler = !isTouchEnabled() ? MouseHandler : TouchHandler;
 
-      this.region[zoneType] = {
+      this.region[zoneName] = {
         recorder: new Recorder(targetEls as HTMLDivElement[]),
         event: new Handler(targetEls as HTMLDivElement[]),
       };
     }
 
-    const [key] = Object.keys(this.region) as Array<ZoneType>;
+    const [key] = Object.keys(this.region) as Array<ZoneName>;
     const zone = this.region[key] as Zone;
-    this.currentZoneType = key;
+    this.currentZoneName = key;
     zone.event.addListeners(this.container);
 
     this.media = StateMachine.create(dataset.media) as MediaStateMachine;
@@ -145,7 +147,7 @@ export default class Rub {
   }
 
   private output(): void {
-    const { recorder } = this.getCurrentZone();
+    const { recorder } = this.region[this.currentZoneName] as Zone;
 
     if (this.loopCallbacks.length > 0) {
       const frames = recorder.getFrames();
@@ -159,7 +161,7 @@ export default class Rub {
   }
 
   private input(ctime: number): void {
-    const { event, recorder } = this.getCurrentZone();
+    const { event, recorder } = this.region[this.currentZoneName] as Zone;
     let velocity = 0;
     let targetIndex = -1;
 
@@ -175,7 +177,7 @@ export default class Rub {
           const dy = y - this.y0;
 
           if (dt > MIN_INTERVAL) {
-            velocity = getVelocity(dt, dx, dy);
+            velocity = calcVelocity(dt, dx, dy);
           }
         }
 
@@ -206,7 +208,7 @@ export default class Rub {
 
   /* レコーディングを一時停止する。経過時間は停止した時点のまま */
   public stopLoop(): void {
-    const { recorder } = this.getCurrentZone();
+    const { recorder } = this.region[this.currentZoneName] as Zone;
 
     recorder.suspend();
 
@@ -224,22 +226,22 @@ export default class Rub {
     this.resetZone();
   }
 
-  public getCurrentZoneType(): ZoneType {
-    return this.currentZoneType;
+  public getCurrentZoneName(): ZoneName {
+    return this.currentZoneName;
   }
 
-  public getCurrentZone(): Zone {
-    return this.region[this.currentZoneType] as Zone;
+  public getRecorder(): Recorder {
+    return (this.region[this.currentZoneName] as Zone).recorder;
   }
 
-  public setZone(key: ZoneType): void {
+  public setZone(key: ZoneName): void {
     const zone = this.region[key];
 
     if (zone == null) {
       throw new Error('this is assigned undefined');
     }
 
-    this.currentZoneType = key;
+    this.currentZoneName = key;
 
     this.resetZone();
     this.removeEventHandler();
@@ -266,7 +268,7 @@ export default class Rub {
   }
 
   private setEventHandler(): void {
-    const { event } = this.getCurrentZone();
+    const { event } = this.region[this.currentZoneName] as Zone;
 
     if (!event.isAttached()) {
       event.addListeners(this.container);
@@ -274,7 +276,7 @@ export default class Rub {
   }
 
   private removeEventHandler(): void {
-    const { event } = this.getCurrentZone();
+    const { event } = this.region[this.currentZoneName] as Zone;
 
     if (event.isAttached()) {
       event.removeListeners(this.container);
@@ -282,29 +284,9 @@ export default class Rub {
   }
 
   private resetZone(): void {
-    const { event, recorder } = this.getCurrentZone();
+    const { event, recorder } = this.region[this.currentZoneName] as Zone;
 
     event.clearEventTracks();
     recorder.resetFrames();
-  }
-
-  public getVelocity(offset = -1, mode: RecordMode = 'live'): number[] {
-    const { recorder } = this.getCurrentZone();
-    return recorder.getVelocity(offset, mode);
-  }
-
-  public shiftFrames(frames: number, mode: RecordMode = 'live'): void {
-    const { recorder } = this.getCurrentZone();
-    recorder.setShiftedFrames(frames, mode);
-  }
-
-  public getFrames(): number {
-    const { recorder } = this.getCurrentZone();
-    return recorder.getFrames();
-  }
-
-  public setFrames(frames: number): void {
-    const { recorder } = this.getCurrentZone();
-    recorder.setFrames(frames);
   }
 }
