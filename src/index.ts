@@ -144,6 +144,9 @@ export default class Rub {
     if (callback != null) {
       this.addLoopCallback(callback);
     }
+
+    this.input = this.input.bind(this);
+    this.output = this.output.bind(this);
   }
 
   private output(): void {
