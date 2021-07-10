@@ -116,7 +116,7 @@ export default class Rub {
 
     for (let i = 0, l = zones.length; i < l; i += 1) {
       const zone = zones[i];
-      const zoneName = zone.dataset.ZoneName as ZoneName;
+      const zoneName = zone.dataset.zoneName as ZoneName;
       const zoneType = zone.dataset.zoneType as ZoneType;
 
       if (zoneName == null) {
