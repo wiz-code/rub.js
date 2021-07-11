@@ -257,16 +257,14 @@ export default class Rub {
   }
 
   public addLoopCallback(callback: LoopCallback | LoopCallback[]): void {
-    if (!Array.isArray(callback)) {
-      this.loopCallbacks.push(callback.bind(this));
-    } else {
-      for (let i = 0, l = callback.length; i < l; i += 1) {
-        this.loopCallbacks.push(callback[i].bind(this));
-      }
+    const callbacks = Array.isArray(callback) ? callback : [callback];
+
+    for (let i = 0, l = callbacks.length; i < l; i += 1) {
+      this.loopCallbacks.push(callbacks[i].bind(this));
     }
   }
 
-  public clearLoopCallback(): void {
+  public clearLoopCallbacks(): void {
     this.loopCallbacks.length = 0;
   }
 
