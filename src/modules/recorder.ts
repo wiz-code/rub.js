@@ -7,9 +7,7 @@ const PER_FRAME = 1000 / FPS;
 const { round } = Math;
 
 export type RecordMode = 'live' | 'playback' | 'external';
-type Record = {
-  [P in RecordMode]: Tracker;
-};
+type Record = Map<RecordMode, Tracker>;
 
 export default class Recorder {
   public record: Record;
@@ -26,33 +24,31 @@ export default class Recorder {
 
   private template: number[];
 
-  private shiftedFrames: {
-    [P in RecordMode]: number;
-  };
+  private shiftedFrames: Map<RecordMode, number>;
 
   public constructor(els: HTMLDivElement[]) {
     const targetNum = els.length;
 
     this.blockSize = targetNum + 1;
 
-    this.record = {
-      live: this.createRecord(),
-      playback: this.createRecord(),
-      external: this.createRecord(),
-    };
+    this.record = new Map([
+      ['live', this.createRecord()],
+      ['playback', this.createRecord()],
+      ['external', this.createRecord()],
+    ]);
 
-    this.shiftedFrames = {
-      live: 0,
-      playback: 0,
-      external: 0,
-    };
+    this.shiftedFrames = new Map([
+      ['live', 0],
+      ['playback', 0],
+      ['external', 0],
+    ]);
 
     this.template = Array(targetNum + 1).fill(0);
   }
 
   public update(ctime: number, velocity: number, targetIndex: number): void {
     const track = this.template.slice(0);
-    const liveTracker = this.record.live;
+    const liveTracker = this.record.get('live') as Tracker;
 
     if (!this.started) {
       this.started = true;
@@ -96,7 +92,7 @@ export default class Recorder {
   public setFrames(frames: number): void {
     const track = this.template.slice(0);
     track[0] = frames;
-    this.record.live.setTrack(track, frames);
+    (this.record.get('live') as Tracker).setTrack(track, frames);
 
     const diff = frames - this.frames;
     const shift = diff * PER_FRAME;
@@ -117,33 +113,33 @@ export default class Recorder {
 
   public clearRecord(mode: RecordMode = 'live'): void {
     // 不使用
-    this.record[mode].writeFrames();
+    (this.record.get(mode) as Tracker).writeFrames();
   }
 
   public getRecordCount(mode: RecordMode = 'live'): number {
     // 不使用
-    return this.record[mode].count;
+    return (this.record.get(mode) as Tracker).count;
   }
 
   public getVelocity(offset = -1, mode: RecordMode = 'live'): number[] {
-    const shifted = offset + this.shiftedFrames[mode];
-    const track = this.record[mode].getTrack(shifted);
+    const shifted = offset + <number>this.shiftedFrames.get(mode);
+    const track = (this.record.get(mode) as Tracker).getTrack(shifted);
     const velocities = Array.from(track.subarray(1));
     return velocities;
   }
 
   public getRecord(mode: RecordMode = 'live'): Float32Array {
-    const tracker = this.record[mode];
+    const tracker = this.record.get(mode) as Tracker;
     return tracker.getTrack(0, tracker.size);
   }
 
   public setRecord(tracks: Float32Array, mode: RecordMode = 'live'): void {
-    this.record[mode].setTrack(tracks);
+    (this.record.get(mode) as Tracker).setTrack(tracks);
   }
 
   public addData(data: number[]): void {
     // 削除予定
-    this.record.live.addTrack(data);
+    (this.record.get('live') as Tracker).addTrack(data);
   }
 
   public getData(
@@ -152,16 +148,16 @@ export default class Recorder {
     mode: RecordMode = 'live'
   ): Float32Array {
     // 不使用
-    const shifted = offset + this.shiftedFrames[mode];
-    return this.record[mode].getTrack(shifted, count);
+    const shifted = offset + <number>this.shiftedFrames.get(mode);
+    return (this.record.get(mode) as Tracker).getTrack(shifted, count);
   }
 
   public setData(track: number[], offset = 0, mode: RecordMode = 'live'): void {
     // 不使用
-    this.record[mode].setTrack(track, offset);
+    (this.record.get(mode) as Tracker).setTrack(track, offset);
   }
 
   public shiftFrames(frames: number, mode: RecordMode = 'playback'): void {
-    this.shiftedFrames[mode] = frames;
+    this.shiftedFrames.set(mode, frames);
   }
 }
