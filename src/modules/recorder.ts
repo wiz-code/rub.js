@@ -124,8 +124,8 @@ export default class Recorder {
   public getVelocity(offset = -1, mode: RecordMode = 'live'): number[] {
     const shifted = offset + <number>this.shiftedFrames.get(mode);
     const track = (this.record.get(mode) as Tracker).getTrack(shifted);
-    const velocities = Array.from(track.subarray(1));
-    return velocities;
+    const velocity = Array.from(track.subarray(1));
+    return velocity;
   }
 
   public getRecord(mode: RecordMode = 'live'): Float32Array {
@@ -157,7 +157,7 @@ export default class Recorder {
     (this.record.get(mode) as Tracker).setTrack(track, offset);
   }
 
-  public shiftFrames(frames: number, mode: RecordMode = 'playback'): void {
+  public shiftFrames(frames: number, mode: RecordMode = 'live'): void {
     this.shiftedFrames.set(mode, frames);
   }
 }
