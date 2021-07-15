@@ -64,6 +64,10 @@ function isTouchEnabled(): boolean {
   );
 }
 
+function detectDevicePixelRatio(): number {
+  return window.devicePixelRatio || 1;
+}
+
 function calcVelocity(dt: number, dx: number, dy: number): number {
   if (dt > 0) {
     return max(abs(dx / dt), abs(dy / dt));
@@ -98,6 +102,8 @@ export default class Rub {
   private x0 = 0;
 
   private y0 = 0;
+
+  private multiplier = detectDevicePixelRatio();
 
   public media: MediaStateMachine;
 
@@ -179,6 +185,7 @@ export default class Rub {
 
           if (dt > MIN_INTERVAL) {
             velocity = calcVelocity(dt, dx, dy);
+            velocity *= this.multiplier;
           }
         }
 

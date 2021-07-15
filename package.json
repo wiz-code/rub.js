@@ -1,6 +1,6 @@
 {
   "name": "rub",
-  "version": "0.5.6",
+  "version": "0.5.7",
   "author": "Masa",
   "main": "./lib/rub.js",
   "license": "MIT",
