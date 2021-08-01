@@ -22,10 +22,18 @@ export default class TouchHandler extends PointerHandler {
     if (this.attached) {
       return;
     }
-    this.attached = true;
 
-    el.addEventListener(EventType.TouchStart, this.listener.start, false);
-    el.addEventListener(EventType.TouchMove, this.listener.move, false);
+    this.attached = true;
+    const eventOptions: AddEventListenerOptions = {
+      passive: true,
+    };
+
+    el.addEventListener(
+      EventType.TouchStart,
+      this.listener.start,
+      eventOptions
+    );
+    el.addEventListener(EventType.TouchMove, this.listener.move, eventOptions);
     el.addEventListener(EventType.TouchEnd, this.listener.end, false);
     el.addEventListener(EventType.TouchCancel, this.listener.end, false);
   }

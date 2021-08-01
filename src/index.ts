@@ -70,7 +70,10 @@ function detectDevicePixelRatio(): number {
 
 function calcVelocity(dt: number, dx: number, dy: number): number {
   if (dt > 0) {
-    return max(abs(dx / dt), abs(dy / dt));
+    const vx = abs(dx / dt);
+    const vy = abs(dy / dt);
+
+    return max(vx, vy);
   }
   return 0;
 }

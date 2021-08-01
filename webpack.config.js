@@ -49,4 +49,15 @@ module.exports = {
     },
     extensions: ['.js', '.ts'],
   },
+
+  devServer: {
+    contentBase: [
+      path.resolve(__dirname, './lib'),
+      path.resolve(__dirname, './test'),
+    ],
+    hot: false,
+    open: true,
+    port: 3000,
+    index: 'test.html',
+  },
 };

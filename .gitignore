@@ -21,3 +21,5 @@ src/__tests__/
 
 tmp/
 temp/
+
+test/

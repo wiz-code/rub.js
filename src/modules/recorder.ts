@@ -112,7 +112,6 @@ export default class Recorder {
   }
 
   public clearRecord(mode: RecordMode = 'live'): void {
-    // 不使用
     (this.record.get(mode) as Tracker).writeFrames();
   }
 
