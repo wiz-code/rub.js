@@ -55,6 +55,7 @@ module.exports = {
       path.resolve(__dirname, './lib'),
       path.resolve(__dirname, './test'),
     ],
+    host: '153.126.191.233',
     hot: false,
     open: true,
     port: 3000,
