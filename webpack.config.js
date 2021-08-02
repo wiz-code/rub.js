@@ -56,10 +56,9 @@ module.exports = {
       path.resolve(__dirname, './test'),
     ],
     host: '153.126.191.233',
+    port: 3000,
     hot: false,
     open: false,
-    port: 3000,
-    serverIndex: false,
     index: 'test.html',
   },
 };
