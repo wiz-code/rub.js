@@ -57,8 +57,9 @@ module.exports = {
     ],
     host: '153.126.191.233',
     hot: false,
-    open: true,
+    open: false,
     port: 3000,
+    serverIndex: false,
     index: 'test.html',
   },
 };
