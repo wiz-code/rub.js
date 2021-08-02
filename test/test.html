@@ -59,7 +59,7 @@
       tracker.addLoopCallback((frames) => {
         const recorder = tracker.getRecorder();
         const [velocity] = recorder.getVelocity();
-        velocity > 0 && console.log(velocity);
+        velocity > 0 && console.log(frames, Math.floor(velocity));
       });
       tracker.startLoop();
     </script>
