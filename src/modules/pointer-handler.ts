@@ -15,7 +15,7 @@ export interface PointerStateMachine extends StateMachine.StateMachine {
 }
 
 interface ListenerInterface {
-  [index: string]: (event: MouseEvent | TouchEvent) => void;
+  [index: string]: (event: MouseEvent | TouchEvent | PointerEvent) => void;
 }
 
 abstract class PointerHandler {

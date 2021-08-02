@@ -9,6 +9,18 @@ export default class EventType {
 
   static readonly MouseLeave = 'mouseleave';
 
+  static readonly PointerDown = 'pointerdown';
+
+  static readonly PointerUp = 'pointerup';
+
+  static readonly PointerMove = 'pointermove';
+
+  static readonly PointerEnter = 'pointerenter';
+
+  static readonly PointerLeave = 'pointerleave';
+
+  static readonly PointerCancel = 'pointercancel';
+
   static readonly Click = 'click';
 
   static readonly DoubleClick = 'dblclick';

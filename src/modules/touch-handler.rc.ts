@@ -4,16 +4,16 @@ import EventType from './event-type';
 
 const { documentElement } = document;
 
-export default class MouseHandler extends PointerHandler {
+export default class TouchHandler extends PointerHandler {
   public constructor(els: HTMLDivElement[]) {
     super(els);
 
     this.listener = {
-      start: MouseHandler.start.bind(this, this.state),
-      end: MouseHandler.end.bind(this, this.state),
-      move: MouseHandler.move.bind(this, this.state),
-      activate: MouseHandler.activate.bind(this),
-      inactivate: MouseHandler.inactivate.bind(this),
+      start: TouchHandler.start.bind(this, this.state),
+      move: TouchHandler.move.bind(this, this.state),
+      end: TouchHandler.end.bind(this, this.state),
+      activate: TouchHandler.activate.bind(this),
+      inactivate: TouchHandler.inactivate.bind(this),
     };
   }
 
@@ -28,20 +28,21 @@ export default class MouseHandler extends PointerHandler {
 
     this.attached = true;
 
-    el.addEventListener(EventType.MouseDown, this.listener.start, false);
-    el.addEventListener(EventType.MouseMove, this.listener.move, false);
-    el.addEventListener(EventType.MouseUp, this.listener.end, false);
+    el.addEventListener(EventType.PointerDown, this.listener.start, false);
+    el.addEventListener(EventType.PointerMove, this.listener.move, false);
+    el.addEventListener(EventType.PointerUp, this.listener.end, false);
+    el.addEventListener(EventType.PointerCancel, this.listener.end, false);
 
     for (let i = 0, l = this.targets.length; i < l; i += 1) {
       const target = this.targets[i];
 
       target.el.addEventListener(
-        EventType.MouseEnter,
+        EventType.PointerEnter,
         this.listener.activate,
         false
       );
       target.el.addEventListener(
-        EventType.MouseLeave,
+        EventType.PointerLeave,
         this.listener.inactivate,
         false
       );
@@ -59,20 +60,21 @@ export default class MouseHandler extends PointerHandler {
 
     this.attached = false;
 
-    el.removeEventListener(EventType.MouseDown, this.listener.start, false);
-    el.removeEventListener(EventType.MouseMove, this.listener.move, false);
-    el.removeEventListener(EventType.MouseUp, this.listener.end, false);
+    el.removeEventListener(EventType.PointerDown, this.listener.start, false);
+    el.removeEventListener(EventType.PointerMove, this.listener.move, false);
+    el.removeEventListener(EventType.PointerUp, this.listener.end, false);
+    el.removeEventListener(EventType.PointerCancel, this.listener.end, false);
 
     for (let i = 0, l = this.targets.length; i < l; i += 1) {
       const target = this.targets[i];
 
       target.el.removeEventListener(
-        EventType.MouseEnter,
+        EventType.PointerEnter,
         this.listener.activate,
         false
       );
       target.el.removeEventListener(
-        EventType.MouseLeave,
+        EventType.PointerLeave,
         this.listener.inactivate,
         false
       );
@@ -80,11 +82,11 @@ export default class MouseHandler extends PointerHandler {
   }
 
   static start(
-    this: MouseHandler,
+    this: TouchHandler,
     state: PointerStateMachine,
-    event: MouseEvent | TouchEvent
+    event: MouseEvent | TouchEvent | PointerEvent
   ): void {
-    if (!(event instanceof MouseEvent)) {
+    if (!(event instanceof PointerEvent)) {
       return;
     }
 
@@ -104,11 +106,11 @@ export default class MouseHandler extends PointerHandler {
   }
 
   static move(
-    this: MouseHandler,
+    this: TouchHandler,
     state: PointerStateMachine,
-    event: MouseEvent | TouchEvent
+    event: MouseEvent | TouchEvent | PointerEvent
   ): void {
-    if (!(event instanceof MouseEvent)) {
+    if (!(event instanceof PointerEvent)) {
       return;
     }
 
@@ -126,11 +128,11 @@ export default class MouseHandler extends PointerHandler {
   }
 
   static end(
-    this: MouseHandler,
+    this: TouchHandler,
     state: PointerStateMachine,
-    event: MouseEvent | TouchEvent
+    event: MouseEvent | TouchEvent | PointerEvent
   ): void {
-    if (!(event instanceof MouseEvent)) {
+    if (!(event instanceof PointerEvent)) {
       return;
     }
 
@@ -149,7 +151,10 @@ export default class MouseHandler extends PointerHandler {
     state.end();
   }
 
-  static activate(this: MouseHandler, event: MouseEvent | TouchEvent): void {
+  static activate(
+    this: TouchHandler,
+    event: MouseEvent | TouchEvent | PointerEvent
+  ): void {
     const index = this.findTargetIndex(
       (t: Target): boolean => t.el === (event.target as HTMLDivElement)
     );
@@ -166,7 +171,10 @@ export default class MouseHandler extends PointerHandler {
     target.state.activate();
   }
 
-  static inactivate(this: MouseHandler, event: MouseEvent | TouchEvent): void {
+  static inactivate(
+    this: TouchHandler,
+    event: MouseEvent | TouchEvent | PointerEvent
+  ): void {
     const index = this.findTargetIndex(
       (t: Target): boolean => t.el === (event.target as HTMLDivElement)
     );

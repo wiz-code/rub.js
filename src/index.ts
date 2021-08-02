@@ -1,7 +1,7 @@
 import StateMachine from 'javascript-state-machine';
 import PointerHandler from './modules/pointer-handler';
 import MouseHandler from './modules/mouse-handler';
-import TouchHandler from './modules/touch-handler';
+import TouchHandler from './modules/touch-handler.rc';
 import Recorder from './modules/recorder';
 import dataset from './modules/dataset';
 
