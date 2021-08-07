@@ -276,6 +276,17 @@ export default class Rub {
     this.loopCallbacks.length = 0;
   }
 
+  public destroy(): void {
+    this.stopLoop();
+    this.removeEventHandler();
+    this.clearLoopCallbacks();
+
+    this.region.forEach((zone) => {
+      zone.event.destroy();
+      zone.recorder.destroy();
+    });
+  }
+
   private setEventHandler(): void {
     const { event } = this.region.get(this.zoneName) as Zone;
 

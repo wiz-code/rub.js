@@ -76,6 +76,10 @@ abstract class PointerHandler {
     return this.coords.clearTracks();
   }
 
+  public destroy(): void {
+    this.coords = new Tracker(0, 0);
+  }
+
   public isAttached(): boolean {
     return this.attached;
   }

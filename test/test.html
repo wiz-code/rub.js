@@ -5,8 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=100, shrink-to-fit=no">
     <meta name="description" content="">
-    <meta name="keywords" content="YouTube,web service,VolTube">
-    <title>VolTube</title>
+    <meta name="keywords" content="rub.js">
+    <title>Rub.js</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <style>
@@ -46,6 +46,7 @@
         </div>
       </div>
       <button id="fullscreen">go full screen</button>
+      <button id="destroy">destroy tracker</button>
     </div>
     <script src="rub.js"></script>
     <script>
@@ -62,6 +63,11 @@
         velocity > 0 && console.log(frames, Math.floor(velocity));
       });
       tracker.startLoop();
+
+      const destroyButton = document.getElementById('destroy');
+      destroyButton.addEventListener('click', () => {
+        tracker.destroy();
+      }, false);
     </script>
   </body>
 </html>

@@ -10,7 +10,7 @@ export type RecordMode = 'live' | 'playback' | 'external';
 type Record = Map<RecordMode, Tracker>;
 
 export default class Recorder {
-  public record: Record;
+  private record: Record;
 
   private blockSize: number;
 
@@ -79,6 +79,14 @@ export default class Recorder {
     const tracker = new Tracker(TRACK_SIZE, this.blockSize);
     tracker.writeFrames();
     return tracker;
+  }
+
+  public destroy(): void {
+    this.record = new Map([
+      ['live', new Tracker(0, 0)],
+      ['playback', new Tracker(0, 0)],
+      ['external', new Tracker(0, 0)],
+    ]);
   }
 
   public getElapsedTime(): number {
