@@ -4,7 +4,8 @@ import Tracker from './tracker';
 import dataset from './dataset';
 
 const BLOCK_SIZE = 3; // [t, x, y]
-const TRACK_SIZE = 900000; // (bytes)
+// const TRACK_SIZE = 900000; // (bytes)
+const DURATION = 300; // (seconds)
 
 const isActive = (target: Target): boolean => target.isActive();
 
@@ -39,7 +40,8 @@ abstract class PointerHandler {
     this.state = StateMachine.create(dataset.pointer) as PointerStateMachine;
     this.state.initialize();
 
-    this.coords = new Tracker(TRACK_SIZE, BLOCK_SIZE);
+    const trackSize = DURATION * 60;
+    this.coords = new Tracker(trackSize, BLOCK_SIZE);
     this.listener = {};
   }
 
@@ -78,6 +80,11 @@ abstract class PointerHandler {
 
   public destroy(): void {
     this.coords = new Tracker(0, 0);
+  }
+
+  public resizeTracker(duration: number): void {
+    const trackSize = duration * 60;
+    this.coords = new Tracker(trackSize, BLOCK_SIZE);
   }
 
   public isAttached(): boolean {

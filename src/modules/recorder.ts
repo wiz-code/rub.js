@@ -132,7 +132,7 @@ export default class Recorder {
     this.elapsedTime = 0;
   }
 
-  public resizeRecord(duration): void {
+  public resizeRecord(duration: number): void {
     this.record = new Map([
       ['live', this.createRecord(duration)],
       ['playback', this.createRecord(duration)],

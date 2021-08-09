@@ -287,6 +287,12 @@ export default class Rub {
     });
   }
 
+  public setDuration(duration: number): void {
+    const { recorder, event } = this.region.get(this.zoneName) as Zone;
+    recorder.resizeRecord(duration);
+    event.resizeTracker(duration);
+  }
+
   private setEventHandler(): void {
     const { event } = this.region.get(this.zoneName) as Zone;
 
