@@ -1,6 +1,6 @@
 import Tracker from './tracker';
 
-const TRACK_SIZE = 216000;
+const DURATION = 300;
 const FPS = 60;
 const PER_FRAME = 1000 / FPS;
 
@@ -25,6 +25,8 @@ export default class Recorder {
   private template: number[];
 
   private shiftedFrames: Map<RecordMode, number>;
+
+  private mergeMode = false;
 
   public constructor(els: HTMLDivElement[]) {
     const targetNum = els.length;
@@ -67,7 +69,17 @@ export default class Recorder {
         track[0] = this.frames;
 
         if (targetIndex > -1) {
-          track[targetIndex + 1] = velocity;
+          if (this.mergeMode) {
+            const oldTrack = liveTracker.getTrack(this.frames);
+
+            if (velocity === 0) {
+              track[targetIndex + 1] = oldTrack[targetIndex + 1];
+            } else {
+              track[targetIndex + 1] = velocity;
+            }
+          } else {
+            track[targetIndex + 1] = velocity;
+          }
         }
 
         liveTracker.setTrack(track, this.frames);
@@ -75,8 +87,9 @@ export default class Recorder {
     }
   }
 
-  private createRecord(): Tracker {
-    const tracker = new Tracker(TRACK_SIZE, this.blockSize);
+  private createRecord(duration = DURATION): Tracker {
+    const trackSize = duration * 60;
+    const tracker = new Tracker(trackSize, this.blockSize);
     tracker.writeFrames();
     return tracker;
   }
@@ -117,6 +130,16 @@ export default class Recorder {
     this.started = false;
     this.lastTime = 0;
     this.elapsedTime = 0;
+  }
+
+  public resizeRecord(duration): void {
+    this.record = new Map([
+      ['live', this.createRecord(duration)],
+      ['playback', this.createRecord(duration)],
+      ['external', this.createRecord(duration)],
+    ]);
+
+    this.resetFrames();
   }
 
   public clearRecord(mode: RecordMode = 'live'): void {
@@ -166,5 +189,9 @@ export default class Recorder {
 
   public shiftFrames(frames: number, mode: RecordMode = 'live'): void {
     this.shiftedFrames.set(mode, frames);
+  }
+
+  public setMergeMode(bool = false): void {
+    this.mergeMode = bool;
   }
 }

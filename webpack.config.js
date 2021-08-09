@@ -19,6 +19,7 @@ module.exports = {
     library: {
       name: 'Rub',
       type: 'umd',
+      export: 'default',
     },
     clean: true,
   },

@@ -47,6 +47,7 @@
       </div>
       <button id="fullscreen">go full screen</button>
       <button id="destroy">destroy tracker</button>
+      <button id="resize">resize tracker</button>
     </div>
     <script src="rub.js"></script>
     <script>
@@ -56,7 +57,7 @@
         content.requestFullscreen();
       }, false);
 
-      const tracker = new Rub.default(content);
+      const tracker = new Rub(content);
       tracker.addLoopCallback((frames) => {
         const recorder = tracker.getRecorder();
         const [velocity] = recorder.getVelocity();
@@ -67,6 +68,11 @@
       const destroyButton = document.getElementById('destroy');
       destroyButton.addEventListener('click', () => {
         tracker.destroy();
+      }, false);
+
+      const resizeButton = document.getElementById('resize');
+      resizeButton.addEventListener('click', () => {
+        tracker.getRecorder().resizeRecord(300);
       }, false);
     </script>
   </body>
