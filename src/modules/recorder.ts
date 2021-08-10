@@ -152,7 +152,8 @@ export default class Recorder {
   }
 
   public getVelocity(offset = -1, mode: RecordMode = 'live'): number[] {
-    const shifted = offset + <number>this.shiftedFrames.get(mode);
+    const shifted =
+      offset < 0 ? offset : offset + <number>this.shiftedFrames.get(mode);
     const track = (this.record.get(mode) as Tracker).getTrack(shifted);
     const velocity = Array.from(track.subarray(1));
     return velocity;
@@ -170,6 +171,27 @@ export default class Recorder {
   public addData(data: number[]): void {
     // 削除予定
     (this.record.get('live') as Tracker).addTrack(data);
+  }
+
+  public getRecentBlockData(
+    offset = 0,
+    count = 1,
+    mode: RecordMode = 'live'
+  ): Float32Array[] {
+    const start = offset - (count - 1) + <number>this.shiftedFrames.get(mode);
+
+    if (start < 0) {
+      return [(this.record.get(mode) as Tracker).getTrack(0, 1)];
+    }
+
+    const tracks = (this.record.get(mode) as Tracker).getTrack(start, count);
+    const blockData = [];
+
+    for (let i = 0, l = tracks.length; i < l; i += this.blockSize) {
+      blockData.push(tracks.slice(i, i + this.blockSize));
+    }
+
+    return blockData;
   }
 
   public getData(

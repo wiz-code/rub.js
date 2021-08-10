@@ -60,8 +60,11 @@
       const tracker = new Rub(content);
       tracker.addLoopCallback((frames) => {
         const recorder = tracker.getRecorder();
-        const [velocity] = recorder.getVelocity();
-        velocity > 0 && console.log(frames, Math.floor(velocity));
+        const rawData = recorder.getRecentBlockData(frames, 10);
+        //const [velocity] = recorder.getVelocity();
+        //velocity > 0 && console.log(frames, Math.floor(velocity));
+        const [lastFrames, lastValue] = rawData[rawData.length - 1];
+        console.log(frames, lastFrames, lastValue);
       });
       tracker.startLoop();
 
