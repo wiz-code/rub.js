@@ -102,6 +102,10 @@ export default class Recorder {
     ]);
   }
 
+  public getBlockSize(): number {
+    return this.blockSize;
+  }
+
   public getElapsedTime(): number {
     return this.elapsedTime;
   }
