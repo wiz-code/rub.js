@@ -181,6 +181,21 @@ export default class Recorder {
     offset = 0,
     count = 1,
     mode: RecordMode = 'live'
+  ): Float32Array {
+    const start = offset + <number>this.shiftedFrames.get(mode) - (count - 1);
+
+    if (start < 0) {
+      return (this.record.get(mode) as Tracker).getTrack(0, 1);
+    }
+
+    const tracks = (this.record.get(mode) as Tracker).getTrack(start, count);
+
+    return tracks;
+  }
+  /*public getRecentBlockData(
+    offset = 0,
+    count = 1,
+    mode: RecordMode = 'live'
   ): Float32Array[] {
     const start = offset - (count - 1) + <number>this.shiftedFrames.get(mode);
 
@@ -196,7 +211,7 @@ export default class Recorder {
     }
 
     return blockData;
-  }
+  }*/
 
   public getData(
     offset = -1,
