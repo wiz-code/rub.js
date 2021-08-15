@@ -228,6 +228,10 @@ export default class Recorder {
     (this.record.get(mode) as Tracker).setTrack(track, offset);
   }
 
+  public getShiftedFrames(mode: RecordMode = 'live'): number {
+    return <number>this.shiftedFrames.get(mode);
+  }
+
   public shiftFrames(frames: number, mode: RecordMode = 'live'): void {
     this.shiftedFrames.set(mode, frames);
   }
