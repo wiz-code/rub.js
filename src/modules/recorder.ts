@@ -192,7 +192,7 @@ export default class Recorder {
 
     return tracks;
   }
-  /*public getRecentBlockData(
+  /* public getRecentBlockData(
     offset = 0,
     count = 1,
     mode: RecordMode = 'live'
@@ -211,7 +211,7 @@ export default class Recorder {
     }
 
     return blockData;
-  }*/
+  } */
 
   public getData(
     offset = -1,
