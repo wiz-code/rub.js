@@ -10,9 +10,15 @@ export type RecordMode = 'live' | 'playback' | 'external';
 type Record = Map<RecordMode, Tracker>;
 
 export default class Recorder {
-  private record: Record;
+  private record: Record = new Map();
 
   private blockSize: number;
+
+  private recordModes: Set<RecordMode> = new Set([
+    'live',
+    'playback',
+    'external',
+  ]);
 
   private frames = 0;
 
@@ -24,7 +30,7 @@ export default class Recorder {
 
   private template: number[];
 
-  private shiftedFrames: Map<RecordMode, number>;
+  private shiftedFrames: Map<RecordMode, number> = new Map();
 
   private mergeMode = false;
 
@@ -33,17 +39,10 @@ export default class Recorder {
 
     this.blockSize = targetNum + 1;
 
-    this.record = new Map([
-      ['live', this.createRecord()],
-      ['playback', this.createRecord()],
-      ['external', this.createRecord()],
-    ]);
-
-    this.shiftedFrames = new Map([
-      ['live', 0],
-      ['playback', 0],
-      ['external', 0],
-    ]);
+    this.recordModes.forEach((mode) => {
+      this.record.set(mode, this.createRecord());
+      this.shiftedFrames.set(mode, 0);
+    });
 
     this.template = Array(targetNum + 1).fill(0);
   }
@@ -95,11 +94,9 @@ export default class Recorder {
   }
 
   public destroy(): void {
-    this.record = new Map([
-      ['live', new Tracker(0, 0)],
-      ['playback', new Tracker(0, 0)],
-      ['external', new Tracker(0, 0)],
-    ]);
+    this.recordModes.forEach((mode) => {
+      this.record.set(mode, new Tracker(0, 0));
+    });
   }
 
   public getBlockSize(): number {
@@ -137,11 +134,9 @@ export default class Recorder {
   }
 
   public resizeRecord(duration: number): void {
-    this.record = new Map([
-      ['live', this.createRecord(duration)],
-      ['playback', this.createRecord(duration)],
-      ['external', this.createRecord(duration)],
-    ]);
+    this.recordModes.forEach((mode) => {
+      this.record.set(mode, this.createRecord(duration));
+    });
 
     this.resetFrames();
   }
@@ -155,12 +150,26 @@ export default class Recorder {
     return (this.record.get(mode) as Tracker).count;
   }
 
-  public getVelocity(offset = -1, mode: RecordMode = 'live'): number[] {
+  /* public getVelocity(offset = -1, mode: RecordMode = 'live'): number[] {
     const shifted =
       offset < 0 ? offset : offset + <number>this.shiftedFrames.get(mode);
     const track = (this.record.get(mode) as Tracker).getTrack(shifted);
     const velocity = Array.from(track.subarray(1));
     return velocity;
+  } */
+  public getVelocity(offset = -1): Map<RecordMode, number[]> {
+    const map = new Map();
+
+    this.recordModes.forEach((mode) => {
+      const shifted =
+        offset < 0 ? offset : offset + <number>this.shiftedFrames.get(mode);
+      const track = (this.record.get(mode) as Tracker).getTrack(shifted);
+      const velocity = Array.from(track.subarray(1));
+
+      map.set(mode, velocity);
+    });
+
+    return map;
   }
 
   public getRecord(mode: RecordMode = 'live'): Float32Array {
@@ -177,7 +186,7 @@ export default class Recorder {
     (this.record.get('live') as Tracker).addTrack(data);
   }
 
-  public getRecentBlockData(
+  /* public getRecentBlockData(
     offset = 0,
     count = 1,
     mode: RecordMode = 'live'
@@ -191,27 +200,27 @@ export default class Recorder {
     const tracks = (this.record.get(mode) as Tracker).getTrack(start, count);
 
     return tracks;
-  }
-  /* public getRecentBlockData(
-    offset = 0,
-    count = 1,
-    mode: RecordMode = 'live'
-  ): Float32Array[] {
-    const start = offset - (count - 1) + <number>this.shiftedFrames.get(mode);
-
-    if (start < 0) {
-      return [(this.record.get(mode) as Tracker).getTrack(0, 1)];
-    }
-
-    const tracks = (this.record.get(mode) as Tracker).getTrack(start, count);
-    const blockData = [];
-
-    for (let i = 0, l = tracks.length; i < l; i += this.blockSize) {
-      blockData.push(tracks.slice(i, i + this.blockSize));
-    }
-
-    return blockData;
   } */
+  public getRecentBlockData(
+    offset = 0,
+    count = 1
+  ): Map<RecordMode, Float32Array> {
+    const map = new Map();
+
+    this.recordModes.forEach((mode) => {
+      const start = offset + <number>this.shiftedFrames.get(mode) - (count - 1);
+      const tracker = this.record.get(mode) as Tracker;
+
+      if (start < 0) {
+        map.set(mode, tracker.getTrack(0, 1));
+      } else {
+        const tracks = tracker.getTrack(start, count);
+        map.set(mode, tracks);
+      }
+    });
+
+    return map;
+  }
 
   public getData(
     offset = -1,
