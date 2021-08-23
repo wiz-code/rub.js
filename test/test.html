@@ -47,6 +47,8 @@
       </div>
       <button id="fullscreen">go full screen</button>
       <button id="start">start tracker</button>
+      <button id="stop">stop tracker</button>
+      <button id="disabled">disable recording</button>
       <button id="destroy">destroy tracker</button>
       <button id="resize">resize tracker</button>
     </div>
@@ -78,6 +80,24 @@
       const startButton = document.getElementById('start');
       startButton.addEventListener('click', () => {
         tracker.startLoop();
+
+        setTimeout(() => {
+          tracker.stopLoop();
+        }, 500);
+      }, false);
+
+      const stopButton = document.getElementById('stop');
+      stopButton.addEventListener('click', () => {
+        tracker.stopLoop();
+        console.log('stopped');
+        //tracker.clearLoop();
+      }, false);
+
+      const disableButton = document.getElementById('disabled');
+      disableButton.addEventListener('click', () => {
+        const recorder = tracker.getRecorder();
+        console.log(recorder.isRecordable());
+        recorder.enableRecording(false);
       }, false);
 
       const destroyButton = document.getElementById('destroy');

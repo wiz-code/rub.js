@@ -178,6 +178,10 @@ export default class Rub {
     if (event.isAttached()) {
       const count = event.getEventTrackCount();
 
+      if (count < this.offset) {
+        this.offset = count - 1;
+      }
+
       if (count > this.offset) {
         const track = event.getEventTrack();
         const [t, x, y] = Array.from(track);
@@ -291,9 +295,8 @@ export default class Rub {
   }
 
   public setDuration(duration: number): void {
-    const { recorder, event } = this.region.get(this.zoneName) as Zone;
+    const { recorder } = this.region.get(this.zoneName) as Zone;
     recorder.resizeRecord(duration);
-    event.resizeTracker(duration);
   }
 
   private setEventHandler(): void {
