@@ -41,32 +41,45 @@ export default class Tracker {
       throw new Error('Track size not matched');
     }
 
-    const position = offset * this.blockSize;
-    this.tracks.set(track, position);
+    const { length } = this.tracks;
+    let position = offset * this.blockSize;
 
-    if (position + track.length >= this.end) {
+    if (position >= length) {
+      position %= length;
+      this.end = position + track.length;
+    } else if (position + track.length >= this.end) {
       this.end = position + track.length;
     }
+
+    this.tracks.set(track, position);
   }
 
-  /* addTrack(), getLastTrack()はRecorderクラスでの使用を想定 */
+  /* addTrack()はPointerHandlerクラスでの使用を想定 */
   public addTrack(track: number[]): void {
-    // 削除予定
     if (track.length % this.blockSize !== 0) {
       throw new Error('Track size not matched');
     }
 
+    const { length } = this.tracks;
+
+    if (this.end >= length) {
+      this.end -= length;
+    }
+
     this.tracks.set(track, this.end);
+
     this.end += track.length;
   }
 
   /* 任意の場所からトラックデータを取得する。引数に何も指定しない場合、最後のブロックを取得する */
   public getTrack(offset = -1, count = 1): Float32Array {
-    const position =
+    const { length } = this.tracks;
+    let position =
       offset < 0
         ? (this.count + offset) * this.blockSize
         : offset * this.blockSize;
 
+    position %= length;
     const end = position + count * this.blockSize;
     const track = this.tracks.subarray(position, end);
 
