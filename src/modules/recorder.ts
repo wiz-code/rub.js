@@ -34,6 +34,8 @@ export default class Recorder {
 
   private mergeMode = false;
 
+  private recordable = true;
+
   public constructor(els: HTMLDivElement[]) {
     const targetNum = els.length;
 
@@ -51,12 +53,10 @@ export default class Recorder {
     const track = this.template.slice(0);
     const liveTracker = this.record.get('live') as Tracker;
 
+    // 開始時点のフレームには何も書き込まない
     if (!this.started) {
       this.started = true;
       this.lastTime = ctime;
-
-      track[0] = this.frames;
-      liveTracker.setTrack(track, this.frames);
     } else {
       this.elapsedTime += ctime - this.lastTime;
       this.lastTime = ctime;
@@ -65,13 +65,17 @@ export default class Recorder {
 
       if (currentFrames > this.frames) {
         this.frames = currentFrames;
-        track[0] = this.frames;
+
+        if (!this.recordable) {
+          return;
+        }
 
         if (targetIndex > -1) {
-          if (this.mergeMode) {
-            const oldTrack = liveTracker.getTrack(this.frames);
+          track[0] = this.frames;
 
+          if (this.mergeMode) {
             if (velocity === 0) {
+              const oldTrack = liveTracker.getTrack(this.frames);
               track[targetIndex + 1] = oldTrack[targetIndex + 1];
             } else {
               track[targetIndex + 1] = velocity;
@@ -79,9 +83,9 @@ export default class Recorder {
           } else {
             track[targetIndex + 1] = velocity;
           }
-        }
 
-        liveTracker.setTrack(track, this.frames);
+          liveTracker.setTrack(track, this.frames);
+        }
       }
     }
   }
@@ -97,6 +101,14 @@ export default class Recorder {
     this.recordModes.forEach((mode) => {
       this.record.set(mode, new Tracker(0, 0));
     });
+  }
+
+  public isRecordable(): boolean {
+    return this.recordable;
+  }
+
+  public enableRecording(bool = true): void {
+    this.recordable = bool;
   }
 
   public getBlockSize(): number {
