@@ -46,6 +46,7 @@
         </div>
       </div>
       <button id="fullscreen">go full screen</button>
+      <button id="start">start tracker</button>
       <button id="destroy">destroy tracker</button>
       <button id="resize">resize tracker</button>
     </div>
@@ -60,13 +61,24 @@
       const tracker = new Rub(content);
       tracker.addLoopCallback((frames) => {
         const recorder = tracker.getRecorder();
-        const rawData = recorder.getRecentBlockData(frames, 10);
-        //const [velocity] = recorder.getVelocity();
-        //velocity > 0 && console.log(frames, Math.floor(velocity));
-        const [lastFrames, lastValue] = rawData[rawData.length - 1];
+
+
+
+        /*const velos = recorder.getVelocity();
+        const [velocity] = velos.get('live');
+        velocity > 0 && console.log(frames, 'frames', Math.floor(velocity), 'speed');*/
+
+        const blockData = recorder.getRecentBlockData(frames, 10);
+        const velocity = blockData.get('live');
+        const [lastFrames, lastValue] = velocity.slice(-2);
         console.log(frames, lastFrames, lastValue);
       });
-      tracker.startLoop();
+
+
+      const startButton = document.getElementById('start');
+      startButton.addEventListener('click', () => {
+        tracker.startLoop();
+      }, false);
 
       const destroyButton = document.getElementById('destroy');
       destroyButton.addEventListener('click', () => {
@@ -75,7 +87,7 @@
 
       const resizeButton = document.getElementById('resize');
       resizeButton.addEventListener('click', () => {
-        tracker.setDuration(3000);
+        tracker.setDuration(1);
       }, false);
     </script>
   </body>

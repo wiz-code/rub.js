@@ -177,6 +177,7 @@ export default class Rub {
 
     if (event.isAttached()) {
       const count = event.getEventTrackCount();
+
       if (count > this.offset) {
         const track = event.getEventTrack();
         const [t, x, y] = Array.from(track);
@@ -196,6 +197,8 @@ export default class Rub {
         this.x0 = x;
         this.y0 = y;
 
+        this.offset = count;
+      } else if (count < this.offset) {
         this.offset = count;
       }
 
