@@ -1,7 +1,5 @@
 import StateMachine from 'javascript-state-machine';
-import PointerHandler from './modules/pointer-handler';
-import MouseHandler from './modules/mouse-handler';
-import TouchHandler from './modules/touch-handler.rc';
+import PointerHandler from './modules/pointer-handler.rc';
 import Recorder from './modules/recorder';
 import dataset from './modules/dataset';
 
@@ -55,18 +53,6 @@ interface MediaStateCallback {
 const MIN_INTERVAL = 4;
 const REGION_ID = 'tracking-region';
 const { abs, max } = Math;
-
-function isMouseEnabled(): boolean {
-  return 'MouseEvent' in window;
-}
-
-function isTouchEnabled(): boolean {
-  return (
-    'ontouchstart' in window ||
-    navigator.maxTouchPoints > 0 ||
-    navigator.msMaxTouchPoints > 0
-  );
-}
 
 function detectDevicePixelRatio(): number {
   return window.devicePixelRatio || 1;
@@ -137,19 +123,9 @@ export default class Rub {
       const targetEls =
         zoneType !== 'single' ? Array.from(zone.children) : [zone];
 
-      let Handler;
-
-      if (isMouseEnabled()) {
-        Handler = MouseHandler;
-      } else if (isTouchEnabled()) {
-        Handler = TouchHandler;
-      } else {
-        throw new Error('cannot detect both MouseEvent and TouchEvent');
-      }
-
       this.region.set(zoneName, {
         recorder: new Recorder(targetEls as HTMLDivElement[]),
-        event: new Handler(targetEls as HTMLDivElement[]),
+        event: new PointerHandler(targetEls as HTMLDivElement[]),
       });
     }
 
