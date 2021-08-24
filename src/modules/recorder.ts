@@ -32,8 +32,6 @@ export default class Recorder {
 
   private shiftedFrames: Map<RecordMode, number> = new Map();
 
-  private mergeMode = false;
-
   private recordable = true;
 
   public constructor(els: HTMLDivElement[]) {
@@ -65,13 +63,14 @@ export default class Recorder {
 
       if (currentFrames > this.frames) {
         this.frames = currentFrames;
-        track[0] = this.frames;
 
         if (!this.recordable) {
           return;
         }
 
         if (targetIndex > -1) {
+          track[0] = this.frames;
+
           if (velocity === 0) {
             const oldTrack = liveTracker.getTrack(this.frames);
             track[targetIndex + 1] = oldTrack[targetIndex + 1];
@@ -79,8 +78,6 @@ export default class Recorder {
             track[targetIndex + 1] = velocity;
           }
 
-          liveTracker.setTrack(track, this.frames);
-        } else if (!this.mergeMode) {
           liveTracker.setTrack(track, this.frames);
         }
       }
@@ -248,9 +245,5 @@ export default class Recorder {
 
   public shiftFrames(frames: number, mode: RecordMode = 'live'): void {
     this.shiftedFrames.set(mode, frames);
-  }
-
-  public setMergeMode(bool = false): void {
-    this.mergeMode = bool;
   }
 }
