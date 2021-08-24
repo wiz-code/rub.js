@@ -65,25 +65,22 @@ export default class Recorder {
 
       if (currentFrames > this.frames) {
         this.frames = currentFrames;
+        track[0] = this.frames;
 
         if (!this.recordable) {
           return;
         }
 
         if (targetIndex > -1) {
-          track[0] = this.frames;
-
-          if (this.mergeMode) {
-            if (velocity === 0) {
-              const oldTrack = liveTracker.getTrack(this.frames);
-              track[targetIndex + 1] = oldTrack[targetIndex + 1];
-            } else {
-              track[targetIndex + 1] = velocity;
-            }
+          if (velocity === 0) {
+            const oldTrack = liveTracker.getTrack(this.frames);
+            track[targetIndex + 1] = oldTrack[targetIndex + 1];
           } else {
             track[targetIndex + 1] = velocity;
           }
 
+          liveTracker.setTrack(track, this.frames);
+        } else if (!this.mergeMode) {
           liveTracker.setTrack(track, this.frames);
         }
       }

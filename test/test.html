@@ -23,6 +23,7 @@
         width: 640px;
         height: 360px;
         touch-action: none;
+        user-select: none;
       }
 
       .tracking-region {
@@ -74,6 +75,7 @@
         const velocity = blockData.get('live');
         const [lastFrames, lastValue] = velocity.slice(-2);
         console.log(frames, lastFrames, lastValue);
+        //console.log(velocity);
       });
 
 
@@ -81,9 +83,9 @@
       startButton.addEventListener('click', () => {
         tracker.startLoop();
 
-        setTimeout(() => {
+        /*setTimeout(() => {
           tracker.stopLoop();
-        }, 500);
+        }, 500);*/
       }, false);
 
       const stopButton = document.getElementById('stop');

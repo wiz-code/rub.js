@@ -56,6 +56,10 @@ const MIN_INTERVAL = 4;
 const REGION_ID = 'tracking-region';
 const { abs, max } = Math;
 
+function isMouseEnabled(): boolean {
+  return 'MouseEvent' in window;
+}
+
 function isTouchEnabled(): boolean {
   return (
     'ontouchstart' in window ||
@@ -133,7 +137,15 @@ export default class Rub {
       const targetEls =
         zoneType !== 'single' ? Array.from(zone.children) : [zone];
 
-      const Handler = !isTouchEnabled() ? MouseHandler : TouchHandler;
+      let Handler;
+
+      if (isMouseEnabled()) {
+        Handler = MouseHandler;
+      } else if (isTouchEnabled()) {
+        Handler = TouchHandler;
+      } else {
+        throw new Error('cannot detect both MouseEvent and TouchEvent');
+      }
 
       this.region.set(zoneName, {
         recorder: new Recorder(targetEls as HTMLDivElement[]),
@@ -200,13 +212,14 @@ export default class Rub {
         this.t0 = t;
         this.x0 = x;
         this.y0 = y;
-
         this.offset = count;
+
+        targetIndex = event.getActiveTargetIndex();
       } else if (count < this.offset) {
         this.offset = count;
       }
 
-      targetIndex = event.getActiveTargetIndex();
+      // targetIndex = event.getActiveTargetIndex();
     }
 
     recorder.update(ctime, velocity, targetIndex);
