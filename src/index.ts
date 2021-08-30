@@ -194,8 +194,6 @@ export default class Rub {
       } else if (count < this.offset) {
         this.offset = count;
       }
-
-      // targetIndex = event.getActiveTargetIndex();
     }
 
     recorder.update(ctime, velocity, targetIndex);

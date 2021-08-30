@@ -70,11 +70,11 @@
         /*const velos = recorder.getVelocity();
         const [velocity] = velos.get('live');
         velocity > 0 && console.log(frames, 'frames', Math.floor(velocity), 'speed');*/
-
+        const updated = recorder.isUpdated();
         const blockData = recorder.getRecentBlockData(frames, 10);
         const velocity = blockData.get('live');
         const [lastFrames, lastValue] = velocity.slice(-2);
-        console.log(frames, lastFrames, lastValue);
+        console.log(frames, lastFrames, lastValue, updated);
         //console.log(velocity);
       });
 

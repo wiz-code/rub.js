@@ -28,6 +28,8 @@ export default class Recorder {
 
   private lastTime = 0;
 
+  private updated = false;
+
   private template: number[];
 
   private shiftedFrames: Map<RecordMode, number> = new Map();
@@ -50,6 +52,8 @@ export default class Recorder {
   public update(ctime: number, velocity: number, targetIndex: number): void {
     const track = this.template.slice(0);
     const liveTracker = this.record.get('live') as Tracker;
+
+    this.updated = velocity > 0;
 
     // 開始時点のフレームには何も書き込まない
     if (!this.started) {
@@ -156,13 +160,6 @@ export default class Recorder {
     return (this.record.get(mode) as Tracker).count;
   }
 
-  /* public getVelocity(offset = -1, mode: RecordMode = 'live'): number[] {
-    const shifted =
-      offset < 0 ? offset : offset + <number>this.shiftedFrames.get(mode);
-    const track = (this.record.get(mode) as Tracker).getTrack(shifted);
-    const velocity = Array.from(track.subarray(1));
-    return velocity;
-  } */
   public getVelocity(offset = -1): Map<RecordMode, number[]> {
     const map = new Map();
 
@@ -192,21 +189,6 @@ export default class Recorder {
     (this.record.get('live') as Tracker).addTrack(data);
   }
 
-  /* public getRecentBlockData(
-    offset = 0,
-    count = 1,
-    mode: RecordMode = 'live'
-  ): Float32Array {
-    const start = offset + <number>this.shiftedFrames.get(mode) - (count - 1);
-
-    if (start < 0) {
-      return (this.record.get(mode) as Tracker).getTrack(0, 1);
-    }
-
-    const tracks = (this.record.get(mode) as Tracker).getTrack(start, count);
-
-    return tracks;
-  } */
   public getRecentBlockData(
     offset = 0,
     count = 1
@@ -249,5 +231,9 @@ export default class Recorder {
 
   public shiftFrames(frames: number, mode: RecordMode = 'live'): void {
     this.shiftedFrames.set(mode, frames);
+  }
+
+  public isUpdated(): boolean {
+    return this.updated;
   }
 }
