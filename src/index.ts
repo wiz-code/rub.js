@@ -3,13 +3,13 @@ import PointerHandler from './modules/pointer-handler.rc';
 import Recorder from './modules/recorder';
 import dataset from './modules/dataset';
 
-type ZoneName = string;
+type ZoneId = string;
 type ZoneType = 'single' | 'multiple';
 type Zone = {
   recorder: Recorder;
   event: PointerHandler;
 };
-type Region = Map<ZoneName, Zone>;
+type Area = Map<ZoneId, Zone>;
 type LoopCallback = (frames: number) => void;
 
 interface MediaStateMachine extends StateMachine.StateMachine {
@@ -51,7 +51,7 @@ interface MediaStateCallback {
 }
 
 const MIN_INTERVAL = 4;
-const REGION_ID = 'tracking-region';
+const AREA_ID = 'tracking-area';
 const { abs, max } = Math;
 
 function detectDevicePixelRatio(): number {
@@ -78,9 +78,9 @@ function genId(): number {
 export default class Rub {
   private id: number;
 
-  private region: Region = new Map();
+  private area: Area = new Map();
 
-  private zoneName: ZoneName;
+  private zoneId: ZoneId;
 
   private inputId = 0;
 
@@ -106,32 +106,32 @@ export default class Rub {
   ) {
     this.id = genId();
 
-    const regionContainer = this.container.querySelector(
-      `.${REGION_ID}`
+    const areaContainer = this.container.querySelector(
+      `.${AREA_ID}`
     ) as HTMLDivElement;
-    const zones = Array.from(regionContainer.children) as HTMLDivElement[];
+    const zones = Array.from(areaContainer.children) as HTMLDivElement[];
 
     for (let i = 0, l = zones.length; i < l; i += 1) {
       const zone = zones[i];
-      const zoneName = zone.dataset.zoneName as ZoneName;
+      const zoneId = zone.dataset.zoneId as ZoneId;
       const zoneType = zone.dataset.zoneType as ZoneType;
 
-      if (zoneName == null) {
-        throw new Error('cannot find identified zone name');
+      if (zoneId == null) {
+        throw new Error('cannot find identified zone id');
       }
 
       const targetEls =
         zoneType !== 'single' ? Array.from(zone.children) : [zone];
 
-      this.region.set(zoneName, {
+      this.area.set(zoneId, {
         recorder: new Recorder(targetEls as HTMLDivElement[]),
         event: new PointerHandler(targetEls as HTMLDivElement[]),
       });
     }
 
-    const keys = this.region.keys();
-    this.zoneName = keys.next().value;
-    const zone = this.region.get(this.zoneName) as Zone;
+    const keys = this.area.keys();
+    this.zoneId = keys.next().value;
+    const zone = this.area.get(this.zoneId) as Zone;
     zone.event.addListeners(this.container);
 
     this.media = StateMachine.create(dataset.media) as MediaStateMachine;
@@ -145,7 +145,7 @@ export default class Rub {
   }
 
   private output(): void {
-    const { recorder } = this.region.get(this.zoneName) as Zone;
+    const { recorder } = this.area.get(this.zoneId) as Zone;
 
     if (this.loopCallbacks.length > 0) {
       const frames = recorder.getFrames();
@@ -159,7 +159,7 @@ export default class Rub {
   }
 
   private input(ctime: number): void {
-    const { event, recorder } = this.region.get(this.zoneName) as Zone;
+    const { event, recorder } = this.area.get(this.zoneId) as Zone;
     let velocity = 0;
     let targetIndex = -1;
 
@@ -213,7 +213,7 @@ export default class Rub {
 
   /* レコーディングを一時停止する。経過時間は停止した時点のまま */
   public stopLoop(): void {
-    const { recorder } = this.region.get(this.zoneName) as Zone;
+    const { recorder } = this.area.get(this.zoneId) as Zone;
 
     recorder.suspend();
 
@@ -231,22 +231,22 @@ export default class Rub {
     this.resetZone();
   }
 
-  public getCurrentZoneName(): ZoneName {
-    return this.zoneName;
+  public getCurrentZoneId(): ZoneId {
+    return this.zoneId;
   }
 
   public getRecorder(): Recorder {
-    return (this.region.get(this.zoneName) as Zone).recorder;
+    return (this.area.get(this.zoneId) as Zone).recorder;
   }
 
-  public setZone(key: ZoneName): void {
-    const zone = this.region.get(key);
+  public setZone(key: ZoneId): void {
+    const zone = this.area.get(key);
 
     if (zone == null) {
       throw new Error('this is assigned undefined');
     }
 
-    this.zoneName = key;
+    this.zoneId = key;
 
     this.resetZone();
     this.removeEventHandler();
@@ -275,19 +275,19 @@ export default class Rub {
     this.removeEventHandler();
     this.clearLoopCallbacks();
 
-    this.region.forEach((zone) => {
+    this.area.forEach((zone) => {
       zone.event.destroy();
       zone.recorder.destroy();
     });
   }
 
   public setDuration(duration: number): void {
-    const { recorder } = this.region.get(this.zoneName) as Zone;
+    const { recorder } = this.area.get(this.zoneId) as Zone;
     recorder.resizeRecord(duration);
   }
 
   private setEventHandler(): void {
-    const { event } = this.region.get(this.zoneName) as Zone;
+    const { event } = this.area.get(this.zoneId) as Zone;
 
     if (!event.isAttached()) {
       event.addListeners(this.container);
@@ -295,7 +295,7 @@ export default class Rub {
   }
 
   private removeEventHandler(): void {
-    const { event } = this.region.get(this.zoneName) as Zone;
+    const { event } = this.area.get(this.zoneId) as Zone;
 
     if (event.isAttached()) {
       event.removeListeners(this.container);
@@ -303,7 +303,7 @@ export default class Rub {
   }
 
   private resetZone(): void {
-    const { event, recorder } = this.region.get(this.zoneName) as Zone;
+    const { event, recorder } = this.area.get(this.zoneId) as Zone;
 
     event.clearEventTracks();
     recorder.resetFrames();

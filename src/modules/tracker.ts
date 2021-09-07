@@ -47,7 +47,7 @@ export default class Tracker {
     if (position >= length) {
       position %= length;
       this.end = position + track.length;
-    } else if (position + track.length >= this.end) {
+    } else if (position >= this.end) {
       this.end = position + track.length;
     }
 
