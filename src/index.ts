@@ -54,10 +54,6 @@ const MIN_INTERVAL = 4;
 const AREA_ID = 'tracking-area';
 const { abs, max } = Math;
 
-function detectDevicePixelRatio(): number {
-  return window.devicePixelRatio || 1;
-}
-
 function calcVelocity(dt: number, dx: number, dy: number): number {
   if (dt > 0) {
     const vx = abs(dx / dt);
@@ -96,7 +92,7 @@ export default class Rub {
 
   private y0 = 0;
 
-  private multiplier = detectDevicePixelRatio();
+  private multiplier = 1;
 
   public media: MediaStateMachine;
 
@@ -284,6 +280,10 @@ export default class Rub {
   public setDuration(duration: number): void {
     const { recorder } = this.area.get(this.zoneId) as Zone;
     recorder.resizeRecord(duration);
+  }
+
+  public setMultiplier(multiplier: number): void {
+    this.multiplier = multiplier;
   }
 
   private setEventHandler(): void {
