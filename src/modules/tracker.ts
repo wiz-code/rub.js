@@ -91,7 +91,7 @@ export default class Tracker {
     this.tracks.fill(0);
   }
 
-  public writeFrames(): void {
+  /* public writeFrames(): void {
     this.clearTracks();
 
     for (let i = 0, l = this.tracks.length, count = 0; i < l; i += 1) {
@@ -100,5 +100,5 @@ export default class Tracker {
         count += 1;
       }
     }
-  }
+  } */
 }

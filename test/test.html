@@ -73,8 +73,8 @@
         const updated = recorder.isUpdated();
         const blockData = recorder.getRecentBlockData(frames, 10);
         const velocity = blockData.get('live');
-        const [lastFrames, lastValue] = velocity.slice(-2);
-        console.log(frames, lastFrames, lastValue, updated);
+        const [lastValue] = velocity.slice(-2);
+        console.log(frames, lastValue, updated);
         //console.log(velocity);
       });
 

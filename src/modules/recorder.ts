@@ -12,7 +12,8 @@ type Record = Map<RecordMode, Tracker>;
 export default class Recorder {
   private records: Record = new Map();
 
-  private blockSize: number;
+  // private blockSize: number;
+  private targetNum: number;
 
   private recordModes: Set<RecordMode> = new Set([
     'live',
@@ -37,16 +38,18 @@ export default class Recorder {
   private recordable = true;
 
   public constructor(els: HTMLDivElement[]) {
-    const targetNum = els.length;
+    // const targetNum = els.length;
+    this.targetNum = els.length;
 
-    this.blockSize = targetNum + 1;
+    // this.blockSize = targetNum + 1;
 
     this.recordModes.forEach((mode) => {
       this.records.set(mode, this.createRecord());
       this.shiftedFrames.set(mode, 0);
     });
 
-    this.template = Array(targetNum + 1).fill(0);
+    // this.template = Array(targetNum + 1).fill(0);
+    this.template = Array(this.targetNum).fill(0);
   }
 
   public update(ctime: number, velocity: number, targetIndex: number): void {
@@ -73,13 +76,14 @@ export default class Recorder {
         }
 
         if (targetIndex > -1) {
-          track[0] = this.frames;
-
+          // track[0] = this.frames;
           if (velocity === 0) {
             const oldTrack = liveTracker.getTrack(this.frames);
-            track[targetIndex + 1] = oldTrack[targetIndex + 1];
+            // track[targetIndex + 1] = oldTrack[targetIndex + 1];
+            track[targetIndex] = oldTrack[targetIndex];
           } else {
-            track[targetIndex + 1] = velocity;
+            // track[targetIndex + 1] = velocity;
+            track[targetIndex] = velocity;
           }
 
           liveTracker.setTrack(track, this.frames);
@@ -90,8 +94,9 @@ export default class Recorder {
 
   private createRecord(duration = DURATION): Tracker {
     const trackSize = duration * 60;
-    const tracker = new Tracker(trackSize, this.blockSize);
-    tracker.writeFrames();
+    // const tracker = new Tracker(trackSize, this.blockSize);
+    const tracker = new Tracker(trackSize, this.targetNum);
+    // tracker.writeFrames();
     return tracker;
   }
 
@@ -109,8 +114,11 @@ export default class Recorder {
     this.recordable = bool;
   }
 
-  public getBlockSize(): number {
+  /* public getBlockSize(): number {
     return this.blockSize;
+  } */
+  public getTargetNum(): number {
+    return this.targetNum;
   }
 
   public getElapsedTime(): number {
@@ -123,7 +131,7 @@ export default class Recorder {
 
   public setFrames(frames: number): void {
     const track = this.template.slice(0);
-    track[0] = frames;
+    // track[0] = frames;
     (this.records.get('live') as Tracker).setTrack(track, frames);
 
     const diff = frames - this.frames;
@@ -152,7 +160,8 @@ export default class Recorder {
   }
 
   public clearRecord(mode: RecordMode = 'live'): void {
-    (this.records.get(mode) as Tracker).writeFrames();
+    // (this.records.get(mode) as Tracker).writeFrames();
+    (this.records.get(mode) as Tracker).clearTracks();
   }
 
   public getRecordCount(mode: RecordMode = 'live'): number {
@@ -167,7 +176,8 @@ export default class Recorder {
       const shifted =
         offset < 0 ? offset : offset + <number>this.shiftedFrames.get(mode);
       const track = (this.records.get(mode) as Tracker).getTrack(shifted);
-      const velocity = Array.from(track.subarray(1));
+      // const velocity = Array.from(track.subarray(1));
+      const velocity = Array.from(track.subarray(0));
 
       map.set(mode, velocity);
     });
