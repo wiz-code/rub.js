@@ -142,7 +142,7 @@ class PointerHandler {
   }
 
   public getEventTrack(): Float32Array {
-    return this.coords.getTrack();
+    return this.coords.getLastTrack();
   }
 
   public clearEventTracks(): void {

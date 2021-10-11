@@ -169,12 +169,11 @@ export default class Recorder {
     return (this.records.get(mode) as Tracker).count;
   }
 
-  public getVelocity(offset = -1): Map<RecordMode, number[]> {
+  public getVelocity(offset: number): Map<RecordMode, number[]> {
     const map = new Map();
 
     this.recordModes.forEach((mode) => {
-      const shifted =
-        offset < 0 ? offset : offset + <number>this.shiftedFrames.get(mode);
+      const shifted = offset + <number>this.shiftedFrames.get(mode);
       const track = (this.records.get(mode) as Tracker).getTrack(shifted);
       // const velocity = Array.from(track.subarray(1));
       const velocity = Array.from(track.subarray(0));
@@ -210,7 +209,7 @@ export default class Recorder {
       const tracker = this.records.get(mode) as Tracker;
 
       if (start < 0) {
-        map.set(mode, tracker.getTrack(0, 1));
+        map.set(mode, tracker.getTrack());
       } else {
         const tracks = tracker.getTrack(start, count);
         map.set(mode, tracks);

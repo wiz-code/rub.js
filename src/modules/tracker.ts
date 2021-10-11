@@ -72,14 +72,24 @@ export default class Tracker {
   }
 
   /* 任意の場所からトラックデータを取得する。引数に何も指定しない場合、最後のブロックを取得する */
-  public getTrack(offset = -1, count = 1): Float32Array {
+  public getLastTrack(): Float32Array {
     const { length } = this.tracks;
-    let position =
-      offset < 0
-        ? (this.count + offset) * this.blockSize
-        : offset * this.blockSize;
+    let position = (this.count - 1) * this.blockSize;
 
     position %= length;
+    const track = this.tracks.subarray(position, this.end);
+
+    return track;
+  }
+
+  public getTrack(offset = 0, count = 1): Float32Array {
+    const { length } = this.tracks;
+    let position = offset * this.blockSize;
+
+    if (position >= length) {
+      position %= length;
+    }
+
     const end = position + count * this.blockSize;
     const track = this.tracks.subarray(position, end);
 
