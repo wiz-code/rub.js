@@ -76,13 +76,10 @@ export default class Recorder {
         }
 
         if (targetIndex > -1) {
-          // track[0] = this.frames;
           if (velocity === 0) {
             const oldTrack = liveTracker.getTrack(this.frames);
-            // track[targetIndex + 1] = oldTrack[targetIndex + 1];
             track[targetIndex] = oldTrack[targetIndex];
           } else {
-            // track[targetIndex + 1] = velocity;
             track[targetIndex] = velocity;
           }
 

@@ -278,8 +278,11 @@ export default class Rub {
   }
 
   public setDuration(duration: number): void {
-    const { recorder } = this.area.get(this.zoneId) as Zone;
-    recorder.resizeRecord(duration);
+    this.area.forEach((zone) => {
+      zone.recorder.resizeRecord(duration);
+    });
+    /* const { recorder } = this.area.get(this.zoneId) as Zone;
+    recorder.resizeRecord(duration); */
   }
 
   public setMultiplier(multiplier: number): void {
