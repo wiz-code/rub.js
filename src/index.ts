@@ -52,7 +52,7 @@ interface MediaStateCallback {
 
 const MIN_INTERVAL = 4;
 const AREA_ID = 'tracking-area';
-const { abs, max } = Math;
+const { abs, max, floor } = Math;
 
 function calcVelocity(dt: number, dx: number, dy: number): number {
   if (dt > 0) {
@@ -91,6 +91,12 @@ export default class Rub {
   private x0 = 0;
 
   private y0 = 0;
+
+  private framerate = 0;
+
+  private basetime = performance.now();
+
+  private frameCount = 0;
 
   private multiplier = 1;
 
@@ -155,6 +161,15 @@ export default class Rub {
   }
 
   private input(ctime: number): void {
+    this.frameCount += 1;
+    const diff = ctime - this.basetime;
+
+    if (diff >= 1000) {
+      this.framerate = floor((this.frameCount * 1000) / diff);
+      this.basetime = ctime;
+      this.frameCount = 0;
+    }
+
     const { event, recorder } = this.area.get(this.zoneId) as Zone;
     let velocity = 0;
     let targetIndex = -1;
@@ -225,6 +240,10 @@ export default class Rub {
     this.offset = 0;
 
     this.resetZone();
+  }
+
+  public getCurrentFramerate(): number {
+    return this.framerate;
   }
 
   public getCurrentZoneId(): ZoneId {
