@@ -33,6 +33,10 @@ export default class Tracker {
   }
 
   get size(): number {
+    if (this.tracks.length === 0) {
+      return 0;
+    }
+
     return floor(this.tracks.length / this.blockSize);
   }
 
