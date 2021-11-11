@@ -119,7 +119,7 @@ export default class Rub {
       const zoneType = zone.dataset.zoneType as ZoneType;
 
       if (trackingZone == null) {
-        throw new Error('cannot find identified zone id');
+        throw new Error('cannot find identified tracking zone id');
       }
 
       const targetEls =
