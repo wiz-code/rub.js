@@ -3,13 +3,13 @@ import PointerHandler from './modules/pointer-handler.rc';
 import Recorder from './modules/recorder';
 import dataset from './modules/dataset';
 
-type ZoneId = string;
+type TrackingZone = string;
 type ZoneType = 'single' | 'multiple';
 type Zone = {
   recorder: Recorder;
   event: PointerHandler;
 };
-type Area = Map<ZoneId, Zone>;
+type Area = Map<TrackingZone, Zone>;
 type LoopCallback = (frames: number) => void;
 
 interface MediaStateMachine extends StateMachine.StateMachine {
@@ -76,7 +76,7 @@ export default class Rub {
 
   private area: Area = new Map();
 
-  private zoneId: ZoneId;
+  private trackingZone: TrackingZone;
 
   private inputId = 0;
 
@@ -115,25 +115,25 @@ export default class Rub {
 
     for (let i = 0, l = zones.length; i < l; i += 1) {
       const zone = zones[i];
-      const zoneId = zone.dataset.zoneId as ZoneId;
+      const trackingZone = zone.dataset.trackingZone as TrackingZone;
       const zoneType = zone.dataset.zoneType as ZoneType;
 
-      if (zoneId == null) {
+      if (trackingZone == null) {
         throw new Error('cannot find identified zone id');
       }
 
       const targetEls =
         zoneType !== 'single' ? Array.from(zone.children) : [zone];
 
-      this.area.set(zoneId, {
+      this.area.set(trackingZone, {
         recorder: new Recorder(targetEls as HTMLDivElement[]),
         event: new PointerHandler(targetEls as HTMLDivElement[]),
       });
     }
 
     const keys = this.area.keys();
-    this.zoneId = keys.next().value;
-    const zone = this.area.get(this.zoneId) as Zone;
+    this.trackingZone = keys.next().value;
+    const zone = this.area.get(this.trackingZone) as Zone;
     zone.event.addListeners(this.container);
 
     this.media = StateMachine.create(dataset.media) as MediaStateMachine;
@@ -147,7 +147,7 @@ export default class Rub {
   }
 
   private output(): void {
-    const { recorder } = this.area.get(this.zoneId) as Zone;
+    const { recorder } = this.area.get(this.trackingZone) as Zone;
 
     if (this.loopCallbacks.length > 0) {
       const frames = recorder.getFrames();
@@ -170,7 +170,7 @@ export default class Rub {
       this.frameCount = 0;
     }
 
-    const { event, recorder } = this.area.get(this.zoneId) as Zone;
+    const { event, recorder } = this.area.get(this.trackingZone) as Zone;
     let velocity = 0;
     let targetIndex = -1;
 
@@ -224,7 +224,7 @@ export default class Rub {
 
   /* レコーディングを一時停止する。経過時間は停止した時点のまま */
   public stopLoop(): void {
-    const { recorder } = this.area.get(this.zoneId) as Zone;
+    const { recorder } = this.area.get(this.trackingZone) as Zone;
 
     recorder.suspend();
 
@@ -239,31 +239,31 @@ export default class Rub {
     this.y0 = 0;
     this.offset = 0;
 
-    this.resetZone();
+    this.resetTrackingZone();
   }
 
-  public getCurrentFramerate(): number {
+  public getFramerate(): number {
     return this.framerate;
   }
 
-  public getCurrentZoneId(): ZoneId {
-    return this.zoneId;
+  public getTrackingZone(): TrackingZone {
+    return this.trackingZone;
   }
 
   public getRecorder(): Recorder {
-    return (this.area.get(this.zoneId) as Zone).recorder;
+    return (this.area.get(this.trackingZone) as Zone).recorder;
   }
 
-  public setZone(key: ZoneId): void {
+  public setTrackingZone(key: TrackingZone): void {
     const zone = this.area.get(key);
 
     if (zone == null) {
       throw new Error('this is assigned undefined');
     }
 
-    this.zoneId = key;
+    this.trackingZone = key;
 
-    this.resetZone();
+    this.resetTrackingZone();
     this.removeEventHandler();
 
     this.setEventHandler();
@@ -300,7 +300,7 @@ export default class Rub {
     this.area.forEach((zone) => {
       zone.recorder.resizeRecord(duration);
     });
-    /* const { recorder } = this.area.get(this.zoneId) as Zone;
+    /* const { recorder } = this.area.get(this.trackingZone) as Zone;
     recorder.resizeRecord(duration); */
   }
 
@@ -309,7 +309,7 @@ export default class Rub {
   }
 
   private setEventHandler(): void {
-    const { event } = this.area.get(this.zoneId) as Zone;
+    const { event } = this.area.get(this.trackingZone) as Zone;
 
     if (!event.isAttached()) {
       event.addListeners(this.container);
@@ -317,15 +317,15 @@ export default class Rub {
   }
 
   private removeEventHandler(): void {
-    const { event } = this.area.get(this.zoneId) as Zone;
+    const { event } = this.area.get(this.trackingZone) as Zone;
 
     if (event.isAttached()) {
       event.removeListeners(this.container);
     }
   }
 
-  private resetZone(): void {
-    const { event, recorder } = this.area.get(this.zoneId) as Zone;
+  private resetTrackingZone(): void {
+    const { event, recorder } = this.area.get(this.trackingZone) as Zone;
 
     event.clearEventTracks();
     recorder.resetFrames();

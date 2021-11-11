@@ -7,12 +7,7 @@ const PER_FRAME = 1000 / FPS;
 const { round } = Math;
 const result = new Map();
 
-export type RecordMode =
-  | 'live'
-  | 'playback-1'
-  | 'playback-2'
-  | 'external-1'
-  | 'external-2';
+export type RecordMode = 'live' | 'playback-1' | 'playback-2';
 type Record = Map<RecordMode, Tracker>;
 
 export default class Recorder {
@@ -25,8 +20,6 @@ export default class Recorder {
     'live',
     'playback-1',
     'playback-2',
-    'external-1',
-    'external-2',
   ]);
 
   private recordModes: Set<RecordMode> = new Set(['live']);
