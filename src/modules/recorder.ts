@@ -1,6 +1,5 @@
 import Tracker from './tracker';
 
-const DURATION = 300;
 const FPS = 60;
 const PER_FRAME = 1000 / FPS;
 
@@ -76,7 +75,7 @@ export default class Recorder {
       if (currentFrames > this.frames) {
         this.frames = currentFrames;
 
-        if (!this.recordable) {
+        if (liveTracker.size === 0 || !this.recordable) {
           return;
         }
 
@@ -90,18 +89,17 @@ export default class Recorder {
     }
   }
 
-  private createRecord(duration = DURATION): Tracker {
+  private createRecord(duration = 0): Tracker {
     const trackSize = duration * FPS;
-    // const tracker = new Tracker(trackSize, this.blockSize);
     const tracker = new Tracker(trackSize, this.targetNum);
-    // tracker.writeFrames();
     return tracker;
   }
 
   public destroy(): void {
-    this.recordModeSet.forEach((mode) => {
+    this.records.clear();
+    /* this.recordModeSet.forEach((mode) => {
       this.records.set(mode, new Tracker(0, 0));
-    });
+    }); */
   }
 
   public isRecordable(): boolean {
@@ -136,9 +134,12 @@ export default class Recorder {
   }
 
   public setFrames(frames: number): void {
-    const track = this.template.slice(0);
-    // track[0] = frames;
-    (this.records.get('live') as Tracker).setTrack(track, frames);
+    const liveTracker = this.records.get('live') as Tracker;
+
+    if (liveTracker.size !== 0) {
+      const track = this.template.slice(0);
+      liveTracker.setTrack(track, frames);
+    }
 
     const diff = frames - this.frames;
     const shift = diff * PER_FRAME;
@@ -158,10 +159,7 @@ export default class Recorder {
   }
 
   public resizeRecord(duration: number): void {
-    this.recordModeSet.forEach((mode) => {
-      this.records.set(mode, this.createRecord(duration));
-    });
-
+    this.records.set('live', this.createRecord(duration));
     this.resetFrames();
   }
 
@@ -218,7 +216,9 @@ export default class Recorder {
       const start = offset + <number>this.shiftedFrames.get(mode) - (count - 1);
       const tracker = this.records.get(mode) as Tracker;
 
-      if (start < 0) {
+      if (tracker.size === 0) {
+        result.set(mode, []);
+      } else if (start < 0) {
         const track = this.template.slice(0);
         result.set(mode, track);
       } else {
