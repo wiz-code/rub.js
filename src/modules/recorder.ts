@@ -179,7 +179,13 @@ export default class Recorder {
     this.recordModes.forEach((mode) => {
       const shifted = offset + <number>this.shiftedFrames.get(mode);
       const track = (this.records.get(mode) as Tracker).getTrack(shifted);
-      const velocity = Array.from(track.subarray(0));
+      let velocity;
+
+      if (track.length === 0) {
+        velocity = this.template.slice(0);
+      } else {
+        velocity = Array.from(track.subarray(0));
+      }
 
       result.set(mode, velocity);
     });
@@ -216,9 +222,7 @@ export default class Recorder {
       const start = offset + <number>this.shiftedFrames.get(mode) - (count - 1);
       const tracker = this.records.get(mode) as Tracker;
 
-      if (tracker.size === 0) {
-        result.set(mode, []);
-      } else if (start < 0) {
+      if (tracker.size === 0 || start < 0) {
         const track = this.template.slice(0);
         result.set(mode, track);
       } else {
