@@ -15,13 +15,11 @@ export default class Recorder {
   // private blockSize: number;
   private targetNum: number;
 
-  private recordModeSet: Set<RecordMode> = new Set([
+  private recordModes: Set<RecordMode> = new Set([
     'live',
     'record-1',
     'record-2',
   ]);
-
-  private recordModes: Set<RecordMode> = new Set(['live']);
 
   private frames = 0;
 
@@ -47,7 +45,7 @@ export default class Recorder {
 
     // this.blockSize = targetNum + 1;
 
-    this.recordModeSet.forEach((mode) => {
+    this.recordModes.forEach((mode) => {
       this.records.set(mode, this.createRecord());
       this.shiftedFrames.set(mode, 0);
     });
@@ -97,7 +95,7 @@ export default class Recorder {
 
   public destroy(): void {
     this.records.clear();
-    /* this.recordModeSet.forEach((mode) => {
+    /* this.recordModes.forEach((mode) => {
       this.records.set(mode, new Tracker(0, 0));
     }); */
   }
@@ -112,10 +110,6 @@ export default class Recorder {
 
   public enableOverwrite(bool = true): void {
     this.overwrite = bool;
-  }
-
-  public setRecordModes(modes: RecordMode[]): void {
-    this.recordModes = new Set(modes);
   }
 
   /* public getBlockSize(): number {
