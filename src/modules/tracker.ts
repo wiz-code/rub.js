@@ -36,6 +36,16 @@ export default class Tracker {
     return floor(this.tracks.length / this.blockSize);
   }
 
+  public setTracks(tracks: number[] | Float32Array): void {
+    this.clearTracks();
+
+    if (Array.isArray(tracks)) {
+      this.tracks = new Float32Array(tracks);
+    } else {
+      this.tracks = tracks;
+    }
+  }
+
   public setTrack(track: number[] | Float32Array, offset = 0): void {
     if (track.length % this.blockSize !== 0) {
       throw new Error('Track size not matched');
