@@ -198,7 +198,7 @@ export default class Recorder {
   }
 
   public setRecord(tracks: Float32Array, mode: RecordMode = 'live'): void {
-    (this.records.get(mode) as Tracker).setTrack(tracks);
+    (this.records.get(mode) as Tracker).setTracks(tracks);
   }
 
   public addData(data: number[]): void {
