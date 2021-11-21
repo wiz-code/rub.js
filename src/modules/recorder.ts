@@ -252,6 +252,6 @@ export default class Recorder {
   }
 
   public isUpdated(): boolean {
-    return this.updated;
+    return this.recordable && this.updated;
   }
 }
