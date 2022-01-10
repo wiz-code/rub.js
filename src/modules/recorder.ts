@@ -31,7 +31,7 @@ export default class Recorder {
 
   private updated = false;
 
-  private template: number[];
+  private template: Float32Array;
 
   private shiftedFrames: Map<RecordMode, number> = new Map();
 
@@ -43,15 +43,12 @@ export default class Recorder {
     // const targetNum = els.length;
     this.targetNum = els.length;
 
-    // this.blockSize = targetNum + 1;
-
     this.recordModes.forEach((mode) => {
       this.records.set(mode, this.createRecord());
       this.shiftedFrames.set(mode, 0);
     });
 
-    // this.template = Array(targetNum + 1).fill(0);
-    this.template = Array(this.targetNum).fill(0);
+    this.template = new Float32Array(this.targetNum).fill(0);
   }
 
   public update(ctime: number, velocity: number, targetIndex: number): void {
@@ -167,7 +164,7 @@ export default class Recorder {
     return (this.records.get(mode) as Tracker).count;
   }
 
-  public getVelocity(offset: number): Map<RecordMode, number[]> {
+  public getVelocity(offset: number): Map<RecordMode, Float32Array> {
     result.clear();
 
     this.recordModes.forEach((mode) => {
