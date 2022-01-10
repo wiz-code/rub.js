@@ -175,7 +175,7 @@ export default class Recorder {
       if (track.length === 0) {
         velocity = this.template.slice(0);
       } else {
-        velocity = Array.from(track.subarray(0));
+        velocity = track.subarray(0);
       }
 
       result.set(mode, velocity);
