@@ -169,16 +169,13 @@ export default class Recorder {
 
     this.recordModes.forEach((mode) => {
       const shifted = offset + <number>this.shiftedFrames.get(mode);
-      const track = (this.records.get(mode) as Tracker).getTrack(shifted);
-      let velocity;
+      let track = (this.records.get(mode) as Tracker).getTrack(shifted);
 
       if (track.length === 0) {
-        velocity = this.template.slice(0);
-      } else {
-        velocity = track.subarray(0);
+        track = this.template.slice(0);
       }
 
-      result.set(mode, velocity);
+      result.set(mode, track);
     });
 
     return result;

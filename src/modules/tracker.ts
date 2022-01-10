@@ -81,13 +81,13 @@ export default class Tracker {
     this.end += track.length;
   }
 
-  /* 任意の場所からトラックデータを取得する。引数に何も指定しない場合、最後のブロックを取得する */
+  /* 最後のブロックを取得する */
   public getLastTrack(): Float32Array {
     const { length } = this.tracks;
     let position = (this.count - 1) * this.blockSize;
 
     position %= length;
-    const track = this.tracks.subarray(position, this.end);
+    const track = this.tracks.slice(position, this.end);
 
     return track;
   }
@@ -101,7 +101,7 @@ export default class Tracker {
     }
 
     const end = position + count * this.blockSize;
-    const track = this.tracks.subarray(position, end);
+    const track = this.tracks.slice(position, end);
 
     return track;
   }
