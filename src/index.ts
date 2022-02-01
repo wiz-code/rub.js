@@ -108,10 +108,15 @@ export default class Rub {
   ) {
     this.id = genId();
 
-    const areaContainer = this.container.querySelector(
+    /* const areaContainer = this.container.querySelector(
       `.${AREA_ID}`
-    ) as HTMLDivElement;
-    const zones = Array.from(areaContainer.children) as HTMLDivElement[];
+    ) as HTMLDivElement; */
+    // const zones = Array.from(areaContainer.children) as HTMLDivElement[];
+    const zones = Array.from(
+      this.container.querySelectorAll(
+        `.${AREA_ID} > div[data-zone-type]`
+      ) as NodeListOf<HTMLDivElement>
+    ) as HTMLDivElement[];
 
     for (let i = 0, l = zones.length; i < l; i += 1) {
       const zone = zones[i];
