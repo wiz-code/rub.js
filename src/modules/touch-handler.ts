@@ -1,9 +1,9 @@
-import PointerHandler, { PointerStateMachine } from './pointer-handler';
+import EventHandler, { EventStateMachine } from './event-handler';
 import EventType from './event-type';
 
 const { documentElement } = document;
 
-export default class TouchHandler extends PointerHandler {
+export default class TouchHandler extends EventHandler {
   public constructor(els: HTMLDivElement[]) {
     super(els);
 
@@ -56,10 +56,14 @@ export default class TouchHandler extends PointerHandler {
 
   static start(
     this: TouchHandler,
-    state: PointerStateMachine,
+    state: EventStateMachine,
     event: MouseEvent | TouchEvent
   ): void {
     if (!(event instanceof TouchEvent)) {
+      return;
+    }
+
+    if (event.targetTouches.length > 1) {
       return;
     }
 
@@ -72,7 +76,7 @@ export default class TouchHandler extends PointerHandler {
     const t = performance.now();
 
     const rect: DOMRect = documentElement.getBoundingClientRect();
-    const touch: Touch = Array.from(event.changedTouches)[0];
+    const [touch]: Touch[] = Array.from(event.changedTouches);
     const x = touch.clientX - rect.left;
     const y = touch.clientY - rect.top;
 
@@ -81,7 +85,7 @@ export default class TouchHandler extends PointerHandler {
 
   static move(
     this: TouchHandler,
-    state: PointerStateMachine,
+    state: EventStateMachine,
     event: MouseEvent | TouchEvent
   ): void {
     if (!(event instanceof TouchEvent)) {
@@ -95,7 +99,7 @@ export default class TouchHandler extends PointerHandler {
     const t = performance.now();
 
     const rect: DOMRect = documentElement.getBoundingClientRect();
-    const touch: Touch = Array.from(event.changedTouches)[0];
+    const [touch]: Touch[] = Array.from(event.changedTouches);
     const cx = touch.clientX;
     const cy = touch.clientY;
     const x = cx - rect.left;
@@ -125,7 +129,7 @@ export default class TouchHandler extends PointerHandler {
 
   static end(
     this: TouchHandler,
-    state: PointerStateMachine,
+    state: EventStateMachine,
     event: MouseEvent | TouchEvent
   ): void {
     if (!(event instanceof TouchEvent)) {
@@ -139,7 +143,7 @@ export default class TouchHandler extends PointerHandler {
     const t = performance.now();
 
     const rect: DOMRect = documentElement.getBoundingClientRect();
-    const touch: Touch = Array.from(event.changedTouches)[0];
+    const [touch]: Touch[] = Array.from(event.changedTouches);
     const x = touch.clientX - rect.left;
     const y = touch.clientY - rect.top;
 

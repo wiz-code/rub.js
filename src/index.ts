@@ -1,5 +1,6 @@
 import StateMachine from 'javascript-state-machine';
-import PointerHandler from './modules/pointer-handler.rc';
+import PointerHandler from './modules/pointer-handler';
+import TouchHandler from './modules/touch-handler';
 import Recorder from './modules/recorder';
 import dataset from './modules/dataset';
 
@@ -7,7 +8,7 @@ type TrackingZone = string;
 type ZoneType = 'single' | 'multiple';
 type Zone = {
   recorder: Recorder;
-  event: PointerHandler;
+  event: PointerHandler | TouchHandler;
 };
 type Area = Map<TrackingZone, Zone>;
 type LoopCallback = (frames: number) => void;
@@ -53,6 +54,14 @@ interface MediaStateCallback {
 const MIN_INTERVAL = 4;
 const AREA_ID = 'tracking-area';
 const { abs, max, floor } = Math;
+
+function isTouchDevice(): boolean {
+  return (
+    'ontouchstart' in window ||
+    navigator.maxTouchPoints > 0 ||
+    navigator.msMaxTouchPoints > 0
+  );
+}
 
 function calcVelocity(dt: number, dx: number, dy: number): number {
   if (dt > 0) {
@@ -107,7 +116,7 @@ export default class Rub {
     callback?: LoopCallback | LoopCallback[]
   ) {
     this.id = genId();
-
+    const Handler = isTouchDevice() ? TouchHandler : PointerHandler;
     /* const areaContainer = this.container.querySelector(
       `.${AREA_ID}`
     ) as HTMLDivElement; */
@@ -132,7 +141,7 @@ export default class Rub {
 
       this.area.set(trackingZone, {
         recorder: new Recorder(targetEls as HTMLDivElement[]),
-        event: new PointerHandler(targetEls as HTMLDivElement[]),
+        event: new Handler(targetEls as HTMLDivElement[]),
       });
     }
 
