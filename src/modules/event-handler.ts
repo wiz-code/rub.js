@@ -5,7 +5,7 @@ import dataset from './dataset';
 
 const FPS = 60;
 const BLOCK_SIZE = 3; // [t, x, y]
-const DURATION = 300; // (seconds)
+const DURATION = 3; // 300 (seconds)
 
 const isActive = (target: Target): boolean => target.isActive();
 

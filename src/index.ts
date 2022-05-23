@@ -93,7 +93,7 @@ export default class Rub {
 
   private loopCallbacks: LoopCallback[] = [];
 
-  private offset = 0;
+  private offsetCount = 0;
 
   private t0 = 0;
 
@@ -190,34 +190,42 @@ export default class Rub {
 
     if (event.isAttached()) {
       const count = event.getEventTrackCount();
-
-      if (count < this.offset) {
-        this.offset = count - 1;
-      }
-
-      if (count > this.offset) {
+      /* if (count < this.offsetCount) {
+        this.offsetCount = count - 1;
+      } */
+      if (count > 0) {
         const track = event.getEventTrack();
         const [t, x, y] = Array.from(track);
 
-        if (this.t0 > 0) {
-          const dt = t - this.t0;
-          const dx = x - this.x0;
-          const dy = y - this.y0;
+        if (count > this.offsetCount) {
+          if (this.offsetCount === 0) {
+            this.t0 = t;
+            this.x0 = x;
+            this.y0 = y;
+            this.offsetCount = count;
+          } else {
+            const dt = t - this.t0;
+            const dx = x - this.x0;
+            const dy = y - this.y0;
 
-          if (dt > MIN_INTERVAL) {
-            velocity = calcVelocity(dt, dx, dy);
-            velocity *= this.multiplier;
+            if (dt > MIN_INTERVAL) {
+              velocity = calcVelocity(dt, dx, dy);
+              velocity *= this.multiplier;
+
+              this.t0 = t;
+              this.x0 = x;
+              this.y0 = y;
+              this.offsetCount = count;
+
+              targetIndex = event.getActiveTargetIndex();
+            }
           }
+        } else if (count < this.offsetCount) {
+          this.t0 = t;
+          this.x0 = x;
+          this.y0 = y;
+          this.offsetCount = count;
         }
-
-        this.t0 = t;
-        this.x0 = x;
-        this.y0 = y;
-        this.offset = count;
-
-        targetIndex = event.getActiveTargetIndex();
-      } else if (count < this.offset) {
-        this.offset = count;
       }
     }
 
@@ -251,7 +259,7 @@ export default class Rub {
     this.t0 = 0;
     this.x0 = 0;
     this.y0 = 0;
-    this.offset = 0;
+    this.offsetCount = 0;
 
     this.resetTrackingZone();
   }
