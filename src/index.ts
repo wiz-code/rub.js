@@ -12,6 +12,12 @@ type Zone = {
 };
 type Area = Map<TrackingZone, Zone>;
 type LoopCallback = (frames: number) => void;
+type Pointer = {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+};
 
 interface MediaStateMachine extends StateMachine.StateMachine {
   initialize(): void;
@@ -63,7 +69,7 @@ function isTouchDevice(): boolean {
   );
 }
 
-function calcVelocity(dt: number, dx: number, dy: number): number {
+/* function calcVelocity(dt: number, dx: number, dy: number): number {
   if (dt > 0) {
     const vx = abs(dx / dt);
     const vy = abs(dy / dt);
@@ -71,7 +77,7 @@ function calcVelocity(dt: number, dx: number, dy: number): number {
     return max(vx, vy);
   }
   return 0;
-}
+} */
 
 let id = 0;
 
@@ -108,6 +114,14 @@ export default class Rub {
   private frameCount = 0;
 
   private multiplier = 1;
+
+  private x = 0;
+
+  private y = 0;
+
+  private vx = 0;
+
+  private vy = 0;
 
   public media: MediaStateMachine;
 
@@ -190,12 +204,16 @@ export default class Rub {
 
     if (event.isAttached()) {
       const count = event.getEventTrackCount();
-      /* if (count < this.offsetCount) {
-        this.offsetCount = count - 1;
-      } */
+
       if (count > 0) {
         const track = event.getEventTrack();
         const [t, x, y] = Array.from(track);
+
+        this.x = x;
+        this.y = y;
+
+        this.vx = 0;
+        this.vy = 0;
 
         if (count > this.offsetCount) {
           if (this.offsetCount === 0) {
@@ -209,7 +227,10 @@ export default class Rub {
             const dy = y - this.y0;
 
             if (dt > MIN_INTERVAL) {
-              velocity = calcVelocity(dt, dx, dy);
+              this.vx = dx / dt;
+              this.vy = dy / dt;
+
+              velocity = max(abs(this.vx), abs(this.vy));
               velocity *= this.multiplier;
 
               this.t0 = t;
@@ -266,6 +287,17 @@ export default class Rub {
 
   public getFramerate(): number {
     return this.framerate;
+  }
+
+  public getPointer(): Pointer {
+    const pointer = {
+      x: this.x,
+      y: this.y,
+      vx: this.vx,
+      vy: this.vy,
+    };
+
+    return pointer;
   }
 
   public getTrackingZone(): TrackingZone {
