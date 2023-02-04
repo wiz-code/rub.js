@@ -57,6 +57,7 @@ interface MediaStateCallback {
   onerror(): void;
 }
 
+const FPS = 60;
 const MIN_INTERVAL = 4;
 const AREA_ID = 'tracking-area';
 const { abs, max, floor } = Math;
@@ -114,6 +115,8 @@ export default class Rub {
   private frameCount = 0;
 
   private multiplier = 1;
+
+  private adjustVelocity = false;
 
   private x = 0;
 
@@ -196,6 +199,11 @@ export default class Rub {
       this.framerate = floor((this.frameCount * 1000) / diff);
       this.basetime = ctime;
       this.frameCount = 0;
+
+      if (this.adjustVelocity && this.framerate > 0) {
+        const multiplier = FPS / this.framerate;
+        this.setMultiplier(multiplier);
+      }
     }
 
     const { event, recorder } = this.area.get(this.trackingZone) as Zone;
@@ -356,6 +364,14 @@ export default class Rub {
     });
     /* const { recorder } = this.area.get(this.trackingZone) as Zone;
     recorder.resizeRecord(duration); */
+  }
+
+  public enableAdjustVelocity(bool = true): void {
+    this.adjustVelocity = bool;
+  }
+
+  public getMultiplier(): number {
+    return this.multiplier;
   }
 
   public setMultiplier(multiplier: number): void {
