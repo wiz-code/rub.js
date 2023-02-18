@@ -366,6 +366,10 @@ export default class Rub {
     recorder.resizeRecord(duration); */
   }
 
+  public isVelocityAdjusting(): boolean {
+    return this.adjustVelocity;
+  }
+
   public enableAdjustVelocity(bool = true): void {
     this.adjustVelocity = bool;
   }
