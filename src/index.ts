@@ -60,7 +60,7 @@ interface MediaStateCallback {
 const FPS = 60;
 const MIN_INTERVAL = 4;
 const AREA_ID = 'tracking-area';
-const { abs, max, floor } = Math;
+const { floor, sqrt } = Math;
 
 function isTouchDevice(): boolean {
   return (
@@ -237,8 +237,8 @@ export default class Rub {
             if (dt > MIN_INTERVAL) {
               this.vx = dx / dt;
               this.vy = dy / dt;
-
-              velocity = max(abs(this.vx), abs(this.vy));
+              // velocity = max(abs(this.vx), abs(this.vy));
+              velocity = sqrt(this.vx * this.vx + this.vy * this.vy);
               velocity *= this.multiplier;
 
               this.t0 = t;
